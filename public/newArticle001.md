@@ -1,7 +1,7 @@
 ---
 title: newArticle001
 tags:
-  - ''
+  - 'qiita'
 private: false
 updated_at: ''
 id: null
