@@ -16,9 +16,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          # 差分比較のために完全な履歴を取得
           fetch-depth: 0
-          ref: ${{ github.ref }}
+          # PR イベントの場合、github.head_ref を利用することで detached HEAD 状態を回避
+          ref: ${{ github.head_ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -33,12 +33,15 @@ jobs:
           QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
         run: node scripts/qiita_sync.js
 
-      - name: Commit and push diff # Not executed recursively even if `push` is triggered. See https://docs.github.com/en/actions/using-workflows/triggering-a-workflow#triggering-a-workflow-from-a-workflow
+      - name: Commit and push diff
+        env:
+          COMMIT_MESSAGE: update by qiita_sync[bot]
         run: |
           git add ./public/*
-          if ! git diff --staged --exit-code --quiet; then
+          if ! git diff --staged --exit-code; then
             git config --global user.name 'github-actions[bot]'
             git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          
             echo "### 現在の差分 (git diff) ###"
             git diff --color || true
             echo "############################"
@@ -46,8 +49,9 @@ jobs:
             git diff --color || true
             git commit -m "${COMMIT_MESSAGE}"
             echo "コミット完了。push を実行します..."
-            git push origin HEAD:${GITHUB_REF##*/}
+            # 完全な ref 名 (refs/heads/...) を指定して push
+            git push origin HEAD:refs/heads/${{ github.head_ref }}
+          else
+            echo "更新対象のファイルはありません。"
           fi
         shell: bash
-        env:
-          COMMIT_MESSAGE: update by qiita_sync[bot]
