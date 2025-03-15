@@ -1,10 +1,9 @@
 name: Publish and Sync Qiita Articles
 
 on:
-  workflow_run:
-    workflows: ["Spell Check"]
-    types:
-      - completed
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
