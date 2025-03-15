@@ -1,9 +1,10 @@
+# .github/workflows/qiita_sync.yml
 name: Qiita記事同期 (Feature Branch)
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - 'feature/*'
 
 jobs:
   qiita-sync:
@@ -12,6 +13,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
+          # 差分比較のために完全な履歴を取得
+          fetch-depth: 0
           ref: ${{ github.ref }}
 
       - name: Setup Node.js
