@@ -1,9 +1,9 @@
 name: Qiita記事同期 (Feature Branch)
 
 on:
-  push:
+  pull_request:
     branches:
-      - 'feature/*'
+      - main
 
 jobs:
   qiita-sync:

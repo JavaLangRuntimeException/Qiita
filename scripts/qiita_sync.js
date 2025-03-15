@@ -20,16 +20,12 @@ async function syncFile(filePath) {
         const content = parsed.content || "";
 
         // APIリクエストに使用するペイロードを作成
+        // data.titleはtitle、data.tagsはtagsから取得する
         const payload = {
             body: content,
-            coediting: typeof data.coediting === 'boolean' ? data.coediting : false,
-            group_url_name: data.group_url_name || null,
-            private: typeof data.private === 'boolean' ? data.private : false,
+            private: false,
             tags: data.tags || [],
-            title: data.title || "Untitled",
-            tweet: false,
-            organization_url_name: data.organization_url_name || null,
-            slide: typeof data.slide === 'boolean' ? data.slide : false
+            title: data.title || "Untitled"
         };
 
         let response;
