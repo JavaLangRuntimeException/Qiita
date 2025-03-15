@@ -39,12 +39,13 @@ jobs:
           if ! git diff --staged --exit-code --quiet; then
             git config --global user.name 'github-actions[bot]'
             git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          
             echo "### 現在の差分 (git diff) ###"
             git diff --color || true
             echo "############################"
-          
+            echo "以下の変更内容をコミットします："
+            git diff --color || true
             git commit -m "${COMMIT_MESSAGE}"
+            echo "コミット完了。push を実行します..."
             git push origin HEAD:${GITHUB_REF##*/}
           fi
         shell: bash
