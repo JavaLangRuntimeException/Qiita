@@ -1,4 +1,4 @@
-name: "Publish Qiita Articles on Feature Branches"
+name: Qiita記事同期 (Feature Branch)
 
 on:
   push:
@@ -6,36 +6,35 @@ on:
       - 'feature/*'
 
 jobs:
-  publish:
+  qiita-sync:
     runs-on: ubuntu-latest
     steps:
-      # feature/* ブランチが push されたとき、そのブランチの内容をチェックアウトします
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
         with:
           ref: ${{ github.ref }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: "20.16.0"
+          node-version: '16'
 
-      - name: Install qiita-cli
-        run: npm install -g @qiita/qiita-cli@v1.6.1
+      - name: Install dependencies
+        run: npm install
 
-      - name: Publish articles to Qiita
-        run: qiita publish --all --root .
+      - name: Run Qiita sync script
         env:
           QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
+        run: node scripts/qiita_sync.js
 
-      - name: Commit and push changes if any
+      - name: Commit and push changes if needed
         run: |
-          git add -A
-          if ! git diff --cached --exit-code; then
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "🚀 Update Qiita articles via workflow [skip ci]"
-            git push origin HEAD:${{ github.ref_name }}
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "Qiita記事メタデータを更新"
+            git push origin ${{ github.ref_name }}
           else
-            echo "No changes detected."
+            echo "更新対象のファイルはありません。"
           fi
