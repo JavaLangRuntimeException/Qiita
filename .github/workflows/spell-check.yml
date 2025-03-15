@@ -26,6 +26,12 @@ jobs:
       - name: Install dependencies
         run: npm install cspell@latest
 
+      - name: Install cspell
+        run: npm install -g cspell
+
+      - name: Setup reviewdog
+        uses: reviewdog/action-setup@v1
+
       - name: Execute Spell Check
         run: |
           cspell $(git diff remotes/origin/$GITHUB_BASE_REF --name-only) | \
