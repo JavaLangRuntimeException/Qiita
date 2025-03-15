@@ -71,6 +71,8 @@ async function syncFile(filePath) {
         } else {
             console.error(`Error processing ${filePath}:`, error.message);
         }
+        // エラーが発生したら強制終了して workflow を失敗させる
+        process.exit(1);
     }
 }
 
@@ -84,7 +86,7 @@ async function processChangedFiles() {
         diffOutput = execSync("git diff --name-only origin/main -- ./public").toString();
     } catch (error) {
         console.error("Error fetching changed files:", error.message);
-        return;
+        process.exit(1);
     }
     const changedFiles = diffOutput
         .split('\n')
@@ -102,6 +104,16 @@ async function processChangedFiles() {
         await syncFile(fullPath);
     }
 }
+
+// 未捕捉例外および Promise の未処理拒否も検知してプロセスを終了する
+process.on('uncaughtException', error => {
+    console.error("Uncaught Exception:", error);
+    process.exit(1);
+});
+process.on('unhandledRejection', error => {
+    console.error("Unhandled Rejection:", error);
+    process.exit(1);
+});
 
 (async () => {
     try {
