@@ -1,15 +1,16 @@
-name: Spell Check
+name: Publish and Sync Qiita Articles
 
 on:
-  pull_request:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Spell Check"]
+    types:
+      - completedg
 
 permissions:
   contents: write
 
 jobs:
-  spell-check:
+  qiita-sync:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -24,26 +25,18 @@ jobs:
           node-version: '18.16.0'
 
       - name: Install dependencies
-        run: npm install cspell@latest
+        run: npm install
 
-      - name: Install cspell
-        run: npm install -g cspell
-
-      - name: Setup reviewdog
-        uses: reviewdog/action-setup@v1
-
-      - name: Execute Spell Check
+      - name: Run Qiita sync script
         env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.REVIEWDOG_GITHUB_API_TOKEN }}
-        run: |
-          cspell $(git diff remotes/origin/$GITHUB_BASE_REF --name-only) | \
-          reviewdog -efm="%f:%l:%c - %m" -reporter=github-pr-check -level=warning
+          QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
+        run: node scripts/qiita_sync.js
 
       - name: Commit and push diff
         env:
-          COMMIT_MESSAGE: update by spell_check[bot]
+          COMMIT_MESSAGE: update by qiita_sync[bot]
         run: |
-          git add .
+          git add ./public/*
           if ! git diff --staged --exit-code; then
             git config --global user.name 'github-actions[bot]'
             git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
