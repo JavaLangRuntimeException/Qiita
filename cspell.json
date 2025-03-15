@@ -1,0 +1,23 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "dictionaries": [
+    "softwareTerms",
+    "misc",
+    "companies",
+    "typescript",
+    "node",
+    "html",
+    "css",
+    "fonts",
+    "filetypes",
+    "npm"
+  ],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/package.json",
+    "**/yarn-error.log",
+    "**/yarn.lock"
+  ]
+}
