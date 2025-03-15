@@ -36,9 +36,20 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
+
+          echo "### 現在の差分 (git diff) ###"
+          git diff --color || true
+          echo "############################"
+
+          # 変更内容をステージング
           git add .
+
+          # コミット対象の変更があるか確認
           if ! git diff-index --quiet HEAD; then
+            echo "以下の変更内容をコミットします："
+            git diff --color || true
             git commit -m "Qiita記事メタデータを更新"
+            echo "コミット完了。push を実行します..."
             git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
           else
             echo "更新対象のファイルはありません。"
