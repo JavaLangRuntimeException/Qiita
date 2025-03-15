@@ -1,42 +1,41 @@
-# Please set 'QIITA_TOKEN' secret to your repository
-name: Publish articles
+name: "Publish articles to Qiita (for PRs)"
 
 on:
   pull_request:
-    branches:
-      - main
-  workflow_dispatch:
-
-permissions:
-  contents: write
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+    types:
+      - opened
+      - synchronize
 
 jobs:
-  publish_articles:
-    if: startsWith(github.head_ref, 'feature/')
+  publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout PR Source Branch
+        uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.16.0"
+
+      - name: Install qiita-cli
+        run: npm install -g @qiita/qiita-cli@v1.6.1
 
       - name: Publish articles to Qiita
-        uses: increments/qiita-cli/actions/publish@v1
-        with:
-          qiita-token: ${{ secrets.QIITA_TOKEN }}
-          root: "."
+        run: qiita publish --all --root .
+        env:
+          QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
 
-      - name: Commit and push diff
+      - name: Commit and push changes
         run: |
           git add ./public/*
           if ! git diff --staged --exit-code --quiet; then
             git config --global user.name 'github-actions[bot]'
             git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git commit -m "Updated by qiita-cli"
-            git push
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          else
+            echo "No changes detected."
           fi
