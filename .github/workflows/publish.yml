@@ -4,7 +4,7 @@ on:
   workflow_run:
     workflows: ["Spell Check"]
     types:
-      - completedg
+      - completed
 
 permissions:
   contents: write
