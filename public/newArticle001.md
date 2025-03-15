@@ -2,6 +2,7 @@
 title: newArticle001
 tags:
   - 'qiita'
+  - 'test'
 private: false
 updated_at: ''
 id: null
