@@ -6,6 +6,12 @@ on:
     branches:
       - main
 
+inputs:
+  commit-message:
+    required: false
+    description: "Git commit message"
+    default: "Updated by qiita-cli"
+
 jobs:
   qiita-sync:
     runs-on: ubuntu-latest
@@ -30,27 +36,20 @@ jobs:
           QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
         run: node scripts/qiita_sync.js
 
-      - name: Commit and push changes if needed
-        env:
-          GITHUB_TOKEN: ${{ secrets.PUSH_TOKEN }}
+      - name: Commit and push diff # Not executed recursively even if `push` is triggered. See https://docs.github.com/en/actions/using-workflows/triggering-a-workflow#triggering-a-workflow-from-a-workflow
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
-          echo "### 現在の差分 (git diff) ###"
-          git diff --color || true
-          echo "############################"
-
-          # 変更内容をステージング
-          git add .
-
-          # コミット対象の変更があるか確認
-          if ! git diff-index --quiet HEAD; then
-            echo "以下の変更内容をコミットします："
+          git add ${{ inputs.root }}/public/*
+          if ! git diff --staged --exit-code --quiet; then
+            git config --global user.name 'github-actions[bot]'
+            git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          
+            echo "### 現在の差分 (git diff) ###"
             git diff --color || true
-            git commit -m "Qiita記事メタデータを更新"
-            echo "コミット完了。push を実行します..."
-            git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
-          else
-            echo "更新対象のファイルはありません。"
+            echo "############################"
+          
+            git commit -m "${COMMIT_MESSAGE}"
+            git push
           fi
+        shell: bash
+        env:
+          COMMIT_MESSAGE: ${{ inputs.commit-message }}
