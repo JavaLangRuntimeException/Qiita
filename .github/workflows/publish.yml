@@ -1,5 +1,4 @@
-# .github/workflows/qiita_sync.yml
-name: Qiita記事同期 (Feature Branch)
+name: Publish and Sync Qiita Articles
 
 on:
   pull_request:
@@ -17,7 +16,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          # PR イベントの場合、github.head_ref を利用することで detached HEAD 状態を回避
           ref: ${{ github.head_ref }}
 
       - name: Setup Node.js
@@ -48,10 +46,9 @@ jobs:
             echo "以下の変更内容をコミットします："
             git diff --color || true
             git commit -m "${COMMIT_MESSAGE}"
-            echo "コミット完了。push を実行します..."
-            # 完全な ref 名 (refs/heads/...) を指定して push
+            echo "コミット完了．push を実行します..."
             git push origin HEAD:refs/heads/${{ github.head_ref }}
           else
-            echo "更新対象のファイルはありません。"
+            echo "更新対象のファイルはありません"
           fi
         shell: bash
