@@ -1,19 +1,19 @@
-name: "Publish articles to Qiita (for PRs)"
+name: "Publish Qiita Articles on Feature Branches"
 
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
+  push:
+    branches:
+      - 'feature/*'
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout PR Source Branch
+      # feature/* ブランチが push されたとき、そのブランチの内容をチェックアウトします
+      - name: Checkout code
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -28,14 +28,14 @@ jobs:
         env:
           QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
 
-      - name: Commit and push changes
+      - name: Commit and push changes if any
         run: |
-          git add ./public/*
-          if ! git diff --staged --exit-code --quiet; then
-            git config --global user.name 'github-actions[bot]'
-            git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m "Updated by qiita-cli"
-            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          git add -A
+          if ! git diff --cached --exit-code; then
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "🚀 Update Qiita articles via workflow [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
           else
             echo "No changes detected."
           fi
