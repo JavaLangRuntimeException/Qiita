@@ -45,7 +45,7 @@ jobs:
             echo "############################"
           
             git commit -m "${COMMIT_MESSAGE}"
-            git push origin HEAD:${{ github.ref_name }}
+            git push origin HEAD:${GITHUB_REF##*/}
           fi
         shell: bash
         env:
