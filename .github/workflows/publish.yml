@@ -2,10 +2,9 @@
 name: Publish articles
 
 on:
-  push:
+  pull_request:
     branches:
       - main
-      - master
   workflow_dispatch:
 
 permissions:
