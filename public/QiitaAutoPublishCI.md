@@ -15,6 +15,10 @@ ignorePublish: false
 このようにQiita記事をマークダウンで書いた際のPreview機能が使えたり，ローカルで記事を管理できるので便利です．また，IDEにGitHubCopilotを導入していると記事の執筆がよりスムーズになります．他にもIDEで執筆するので執筆中の記事の文字列検索や自分の他の記事からの各種検索も可能です．
 さらにgit管理をすれば記事のバックアップや履歴管理ができるので安心です．
 
+今回の完成したディレクトリは以下のGithubを参照してください．
+
+https://github.com/JavaLangRuntimeException/Qiita_AutoPublishCI
+
 # QiitaCLIの導入
 初めにQiita記事をローカルで執筆するためのQiitaCLIの導入方法を記載する．
 
@@ -158,7 +162,7 @@ git push origin master
 - featureブランチからmasterブランチにプルリクエストを作成したら差分のファイルのみ記事の公開をする
 - 記事の公開が成功したらプルリクエストをマージする
 - プルリクエストがOpenの時はfeatureブランチにpushすれ差分のファイルのみ記事の更新をする
-- ローカルで作成した記事のidと
+- ローカルで作成した記事のidとupdated_atとcreated_atを更新する
 
 > 公式さんが作成したActionsありましたが，カスタマイズしたかったのでQiita APIを叩くスクリプトとActionsを自前で用意しました．
 
@@ -297,6 +301,9 @@ process.on('unhandledRejection', error => {
     }
 })();
 ```
+このスクリプトは以下の処理を行う．
+- ファイルの差分を取得して変更があったファイルのみQiita記事を更新または新規投稿する
+- フロントマターのid, created_at, updated_atを更新する
 
 上記のスクリプトを実行するActionsを作成する．Qiitaディレクトリの位置に移動してから以下のコマンドを実行してください．
 ```bash
@@ -362,5 +369,17 @@ jobs:
           fi
         shell: bash
 ```
+このワークフローの内容は以下の通りである．
+- プルリクエストがmainブランチに作成されたときに実行される
+- プルリクエストの差分のファイルのみチェックアウトする
+- Node.jsの環境をセットアップする
+- 依存関係をインストールする
+- Qiita記事の同期スクリプト(node_sync.js)を実行する
+- 差分のファイルをコミットしてプッシュする
 
+---
+これでQiita記事の執筆環境と記事のgit管理と記事の自動更新機能の作成が完了しました．オフラインでできる環境でQiita記事の執筆の効率化に使ってください．
 
+今回の作成したディレクトリは以下のGithubを参照してください．
+
+https://github.com/JavaLangRuntimeException/Qiita_AutoPublishCI
