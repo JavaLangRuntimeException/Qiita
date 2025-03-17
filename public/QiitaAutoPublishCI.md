@@ -4,7 +4,7 @@ tags:
   - qiita
   - qiitacli
 private: false
-updated_at: '2025-03-17T22:36:23+09:00'
+updated_at: '2025-03-17T22:34:55+09:00'
 id: 12c50c4533cd2a751dca
 organization_url_name: null
 slide: false
@@ -322,7 +322,7 @@ name: Publish and Sync Qiita Articles
 on:
   pull_request:
     branches:
-      - main
+      - master
 
 permissions:
   contents: write
@@ -382,6 +382,14 @@ jobs:
 
 ---
 これでQiita記事の執筆環境と記事のgit管理と記事の自動更新機能の作成が完了しました．オフラインでできる環境でQiita記事の執筆の効率化に使ってください．
+
+## 実行方法
+1. ローカルでブランチを作成する
+2. public/ 以下にmdファイルを追加する
+3. 記事を保存(git管理)したければ投稿したい記事をaddし，commit・pushをする
+4. 記事が完成したら作成したブランチでPRを作成する(PRを作成すれば投稿されます)
+5. PRを作成したブランチに対してpushすれば記事の更新がされます
+6. 完全にOKならmasterにマージします．(mainにマージしてもしなくても何か自動で行われるものはありません)
 
 今回の作成したディレクトリは以下のGithubを参照してください．
 
