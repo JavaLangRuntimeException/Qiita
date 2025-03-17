@@ -6,7 +6,7 @@ tags:
   - githubactions
   - CI
 private: false
-updated_at: '2025-03-17T22:56:03+09:00'
+updated_at: '2025-03-17T23:38:07+09:00'
 id: 12c50c4533cd2a751dca
 organization_url_name: null
 slide: false
