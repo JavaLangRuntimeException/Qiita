@@ -6,7 +6,7 @@ tags:
   - githubactions
   - CI
 private: false
-updated_at: '2025-03-17T22:48:42+09:00'
+updated_at: '2025-03-17T22:47:33+09:00'
 id: 12c50c4533cd2a751dca
 organization_url_name: null
 slide: false
@@ -381,6 +381,30 @@ jobs:
 - 依存関係をインストールする
 - Qiita記事の同期スクリプト(node_sync.js)を実行する
 - 差分のファイルをコミットしてプッシュする
+
+フロントマターは以下のようになる．ちょうどこの記事のフロントマターはこの通り．tagsは**1つ以上5つまで**，**titleの入力忘れ**に注意してください．
+
+> tagsはQiitaAPIの仕様でタグの最適化が行われます．
+> qiita → Qiita
+> qiitacli → QiitaCLI
+> githubactions → GitHubActions
+> となります．(ローカルでは変わりませんが)
+
+```
+title: QiitaCLIとGithubActionsを用いてローカル執筆環境とプルリクエストによる投稿自動化をしてみよう
+tags:
+  - qiita
+  - qiitacli
+  - githubactions
+  - CI
+private: false
+updated_at: ''
+id: 
+organization_url_name: null
+slide: false
+ignorePublish: false
+created_at: ''
+```
 
 ---
 これでQiita記事の執筆環境と記事のgit管理と記事の自動更新機能の作成が完了しました．オフラインでできる環境でQiita記事の執筆の効率化に使ってください．
