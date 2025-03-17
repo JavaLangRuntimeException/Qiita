@@ -3,6 +3,8 @@ title: QiitaCLIとGithubActionsを用いてローカル執筆環境とプルリ�
 tags:
   - qiita
   - qiitacli
+  - githubactions
+  - CI
 private: false
 updated_at: '2025-03-17T22:44:39+09:00'
 id: 12c50c4533cd2a751dca
