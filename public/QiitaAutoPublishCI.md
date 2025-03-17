@@ -86,7 +86,7 @@ Preview機能を使用するなら以下のコマンドを実行する．
 ```bash
 npm run preview
 ```
-ちなみにPrevirw機能はブラウザで
+ちなみにPreview機能はブラウザで
 http://localhost:8888 にアクセスすれば使用できる．
 
 > 私の場合はIDEにブラウザを表示するプラグインを導入しています．
