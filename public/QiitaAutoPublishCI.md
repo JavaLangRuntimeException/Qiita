@@ -258,13 +258,13 @@ async function syncFile(filePath) {
 }
 
 /**
- * main ブランチとの差分で変更があった ./public 配下の Markdown ファイルのみ対象にする
+ * master ブランチとの差分で変更があった ./public 配下の Markdown ファイルのみ対象にする
  */
 async function processChangedFiles() {
     let diffOutput = "";
     try {
-        // origin/main との比較で変更があったファイル一覧を取得
-        diffOutput = execSync("git diff --name-only origin/main -- ./public").toString();
+        // origin/master との比較で変更があったファイル一覧を取得
+        diffOutput = execSync("git diff --name-only origin/master -- ./public").toString();
     } catch (error) {
         console.error("Error fetching changed files:", error.message);
         process.exit(1);
@@ -375,7 +375,7 @@ jobs:
         shell: bash
 ```
 このワークフローの内容は以下の通りである．
-- プルリクエストがmainブランチに作成されたときに実行される
+- プルリクエストがmasterブランチに作成されたときに実行される
 - プルリクエストの差分のファイルのみチェックアウトする
 - Node.jsの環境をセットアップする
 - 依存関係をインストールする
@@ -391,7 +391,7 @@ jobs:
 3. 記事を保存(git管理)したければ投稿したい記事をaddし，commit・pushをする
 4. 記事が完成したら作成したブランチでPRを作成する(PRを作成すれば投稿されます)
 5. PRを作成したブランチに対してpushすれば記事の更新がされます
-6. 完全にOKならmasterにマージします．(mainにマージしてもしなくても何か自動で行われるものはありません)
+6. 完全にOKならmasterにマージします．(masterにマージしてもしなくても何か自動で行われるものはありません)
 
 今回の作成したディレクトリは以下のGithubを参照してください．
 
