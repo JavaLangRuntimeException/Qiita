@@ -16,6 +16,8 @@ created_at: '2025-03-17T22:04:19+09:00'
 このようにQiita記事をマークダウンで書いた際のPreview機能が使えたり，ローカルで記事を管理できるので便利です．また，IDEにGitHubCopilotを導入していると記事の執筆がよりスムーズになります．他にもIDEで執筆するので執筆中の記事の文字列検索や自分の他の記事からの各種検索も可能です．
 さらにgit管理をすれば記事のバックアップや履歴管理ができるので安心です．
 
+> この記事もローカルで執筆してGitHubActionsを用いて自動投稿しています
+
 今回の完成したディレクトリは以下のGithubを参照してください．
 
 https://github.com/JavaLangRuntimeException/Qiita_AutoPublishCI
