@@ -1,4 +1,8 @@
 # Qiita
-tarakokko3233 のQiitaをGithubで管理するためのリポジトリ
+JavaLangRuntimeException のQiitaをGithubで管理するためのリポジトリ
 Qiita
-https://qiita.com/tarakokko3233
+https://qiita.com/JavaLangRuntimeException
+
+ローカル執筆環境
+PR時に自動投稿
+
