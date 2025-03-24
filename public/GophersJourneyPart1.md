@@ -1,17 +1,18 @@
 ---
 title: 'Gopher’s Journey: Exploring TCP Protocol Part 1 [HTTP編]'
 tags:
-  - 'Go'
-  - 'TCP'
-  - 'HTTP'
-  - 'プロトコル'
-  - 'プログラミング'
+  - Go
+  - TCP
+  - HTTP
+  - プロトコル
+  - プログラミング
 private: false
-updated_at: ''
-id: null
+updated_at: '2025-03-24T16:27:11+09:00'
+id: 38091220106d86651d2b
 organization_url_name: null
 slide: false
 ignorePublish: false
+created_at: '2025-03-24T16:27:11+09:00'
 ---
 みなさんTCPを使ったプロトコルがどのように実装されているかわかっていますか？本シリーズ(Gopher’s Journey: Exploring TCP Protocol)ではGo言語でTCP通信てみるシリーズです．Part1では自作のHTTP風プロトコルを実装し，サーバーとクライアント双方から通信する例を示す.そして，TCPとHTTPの仕組みを軽くおさらいしつつ，「サーバー側」「自作のHTTP」「クライアント側」の3つにコードを分割し，自作のHTTPパーサやレスポンス組み立てロジックを共用しながら通信を行う流れを紹介します.
 
