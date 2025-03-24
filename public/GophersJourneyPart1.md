@@ -7,7 +7,7 @@ tags:
   - プロトコル
   - プログラミング
 private: false
-updated_at: '2025-03-24T16:27:11+09:00'
+updated_at: '2025-03-24T16:35:26+09:00'
 id: 38091220106d86651d2b
 organization_url_name: null
 slide: false
