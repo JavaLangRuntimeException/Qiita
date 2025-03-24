@@ -30,6 +30,11 @@ https://qiita.com/JavaLangRuntimeException/items/d388717fc1436bc3ec9d
 > 上の記事も〇〇チートシートとしてシリーズ化しているのでぜひご覧ください．様々な言語，フレームワーク，ライブラリなど開発技術の使用方法，基本事項，応用事例を網羅し，手引書として記載したシリーズです．
 git/gh，lazygit，docker，vim，typescript，SQL，プルリクエスト/マークダウン，ステータスコード，ファイル操作，OpenAI AssistantsAPI，Ruby/Ruby on Rails のチートシートがあります．以下の記事に遷移した後，各種チートシートのリンクがあります.
 
+**Gopher’s Journey: Exploring TCP Protocol**
+Goを用いてTCPプロトコルを探求 & 作成するシリーズです．
+
+https://qiita.com/JavaLangRuntimeException/items/38091220106d86651d2b
+
 **TypeScriptで学ぶプログラミングの世界**
 プログラミング言語を根本的に理解するシリーズです．
 
