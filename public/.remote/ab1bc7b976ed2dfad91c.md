@@ -99,6 +99,11 @@ Go言語や標準ライブラリの深掘り調査レポートです．
 
 https://qiita.com/JavaLangRuntimeException/items/dc45b412d3fbd2ccb9e8
 
+**Gopher’s Journey: Exploring TCP Protocol**
+Goを用いてTCPプロトコルを探求 & 作成するシリーズです．
+
+https://qiita.com/JavaLangRuntimeException/items/38091220106d86651d2b
+
 # HTTPステータスコードとは
 
 HTTPステータスコードは，Webサーバーからクライアントへのレスポンスの状態を示す3桁の数字である．これらのコードは，HTTPリクエストの結果を簡潔に表現し，クライアントに対してサーバーの応答状態を伝える重要な役割を果たす．
