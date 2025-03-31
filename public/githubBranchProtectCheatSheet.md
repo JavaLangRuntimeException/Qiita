@@ -1,14 +1,15 @@
 ---
 title: github ブランチ保護ルール チートシート
 tags:
-  - 'git'
-  - 'github'
+  - git
+  - github
 private: false
-updated_at: ''
-id: null
+updated_at: '2025-03-31T13:15:37+09:00'
+id: 3e9791ea5a58da2f8b50
 organization_url_name: null
 slide: false
 ignorePublish: false
+created_at: '2025-03-31T13:15:37+09:00'
 ---
 みなさん共同開発においてmain(master)ブランチやdevelopブランチなどを保護することの重要性は知っていますか？developブランチにレビューなしに勝手にマージされることを防いだりもできます．
 本記事では、リポジトリの安全性と一貫性を高めるために利用できる各種ブランチ保護ルールについて解説する．各ルールには固有の役割があり、単体での利用はもちろん複数のルールを組み合わせることで、より堅牢な開発プロセスを実現することができる．
