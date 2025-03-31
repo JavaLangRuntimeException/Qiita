@@ -5,7 +5,7 @@ tags:
   - Database
   - DBMS
 private: false
-updated_at: '2025-02-28T16:12:57+09:00'
+updated_at: '2025-03-24T16:50:43+09:00'
 id: f038fbaccdd92fb0308a
 organization_url_name: rits-rcc
 slide: false
@@ -101,6 +101,11 @@ https://qiita.com/JavaLangRuntimeException/items/527d99e774165a763180
 Go言語や標準ライブラリの深掘り調査レポートです．
 
 https://qiita.com/JavaLangRuntimeException/items/dc45b412d3fbd2ccb9e8
+
+**Gopher’s Journey: Exploring TCP Protocol**
+Goを用いてTCPプロトコルを探求 & 作成するシリーズです．
+
+https://qiita.com/JavaLangRuntimeException/items/38091220106d86651d2b
 
 
 
