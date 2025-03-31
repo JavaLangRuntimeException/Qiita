@@ -7,7 +7,7 @@ tags:
   - ステータスコード
   - プログラミング初心者
 private: false
-updated_at: '2025-02-17T10:27:04+09:00'
+updated_at: '2025-03-24T16:50:38+09:00'
 id: ab1bc7b976ed2dfad91c
 organization_url_name: rits-rcc
 slide: false
@@ -98,6 +98,11 @@ https://qiita.com/JavaLangRuntimeException/items/527d99e774165a763180
 Go言語や標準ライブラリの深掘り調査レポートです．
 
 https://qiita.com/JavaLangRuntimeException/items/dc45b412d3fbd2ccb9e8
+
+**Gopher’s Journey: Exploring TCP Protocol**
+Goを用いてTCPプロトコルを探求 & 作成するシリーズです．
+
+https://qiita.com/JavaLangRuntimeException/items/38091220106d86651d2b
 
 # HTTPステータスコードとは
 
