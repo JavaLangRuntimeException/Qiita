@@ -391,7 +391,7 @@ switch (day) {
 条件演算子は, 三項演算子とも呼ばれ, 簡潔に条件分岐を表現するための構文である, (条件) ? 式1 : 式2 の形式で記述し, 条件がtrueの場合は式1が, falseの場合は式2が評価されるものである.
 ```cs
 int a = 15, b = 20;  
-string message = (a > b) ? "aはbより大きいである." : "aはbより小さいまたは等しいである.";  
+string message = (a > b) ? "aはbより大きい." : "aはbより小さいまたは等しい.";  
 Console.WriteLine(message);
 ```
 
