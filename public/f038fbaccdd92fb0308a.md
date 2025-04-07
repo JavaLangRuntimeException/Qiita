@@ -5,7 +5,7 @@ tags:
   - Database
   - DBMS
 private: false
-updated_at: '2025-03-31T13:15:35+09:00'
+updated_at: '2025-04-07T12:14:14+09:00'
 id: f038fbaccdd92fb0308a
 organization_url_name: rits-rcc
 slide: false
@@ -38,6 +38,10 @@ https://qiita.com/JavaLangRuntimeException/items/ab1bc7b976ed2dfad91c
 Go・Gorm
 
 https://qiita.com/JavaLangRuntimeException/items/d388717fc1436bc3ec9d
+
+C#/.NET/Unity
+
+https://qiita.com/JavaLangRuntimeException/items/7849b32bc223d4aa0247
 
 Ruby・Ruby on Rails
 

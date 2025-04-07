@@ -7,7 +7,7 @@ tags:
   - ステータスコード
   - プログラミング初心者
 private: false
-updated_at: '2025-03-31T13:15:28+09:00'
+updated_at: '2025-04-07T12:14:09+09:00'
 id: ab1bc7b976ed2dfad91c
 organization_url_name: rits-rcc
 slide: false
@@ -27,6 +27,10 @@ https://qiita.com/JavaLangRuntimeException/items/5894391c08e0d8e28389
 Go・Gorm
 
 https://qiita.com/JavaLangRuntimeException/items/d388717fc1436bc3ec9d
+
+C#/.NET/Unity
+
+https://qiita.com/JavaLangRuntimeException/items/7849b32bc223d4aa0247
 
 Ruby・Ruby on Rails
 
