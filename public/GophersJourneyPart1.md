@@ -7,7 +7,7 @@ tags:
   - TCP
   - プロトコル
 private: false
-updated_at: '2025-03-31T13:15:27+09:00'
+updated_at: '2025-04-07T12:00:26+09:00'
 id: 38091220106d86651d2b
 organization_url_name: null
 slide: false
