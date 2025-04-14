@@ -6,7 +6,7 @@ tags:
   - Map
   - プログラミング
 private: false
-updated_at: '2025-04-14T11:25:03+09:00'
+updated_at: '2025-04-14T11:21:37+09:00'
 id: fcc641fec6858e5216a1
 organization_url_name: null
 slide: false
@@ -15,23 +15,24 @@ created_at: '2025-04-14T11:21:37+09:00'
 ---
 本記事では，JavaにおけるMap，HashMap，ConcurrentHashMapの役割と使い方を解説し， ConcurrentHashMapを利用したTTL（Time-To-Live）機能付きキャッシュの実装例もシンプルなコードで紹介する．
 
-## 1. Mapとその実装の違い
+# 1. Mapとその実装の違い
 まず初めに，キャッシュの理解の前にJavaのMapインターフェースとその実装であるHashMapとConcurrentHashMapの違いを理解することが重要である．
+
 ![image.gif](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/3757442/f66c7a35-7e1d-4081-851a-3fde97560698.gif)
 
-### 1.1 Mapとは
+## 1.1 Mapとは
 Mapはキーと値のペアを管理するインターフェースである．
 キーは重複せず，値を取り出すための基本操作（追加，取得，削除など）が定義されている．
 
-### 1.2 HashMapとは
+## 1.2 HashMapとは
 HashMapはMapインターフェースの代表的な実装であり，内部でハッシュテーブルを用いて高速なアクセスを実現するである．
 ただし，スレッドセーフではないため，単一スレッドまたは外部で同期制御する場合に利用する．
 
-### 1.3 ConcurrentHashMapとは
+## 1.3 ConcurrentHashMapとは
 ConcurrentHashMapはスレッドセーフなMapの実装であり，複数のスレッドから同時に安全な操作が可能となるである．
 内部で分離ロックの仕組みなどを用い，高い並行性とパフォーマンスを確保している．
 
-## 2. 基本的なMapの例
+# 2. 基本的なMapの例
 
 以下は，Mapインターフェースを使ってデータを管理するシンプルな例である．
 この例では，`HashMap`を用いて果物の名前とその色を登録し，内容を表示する．
@@ -56,7 +57,7 @@ public class SimpleMapExample {
 例：
 Mapの内容: {apple=赤, banana=黄, grape=紫}
 
-## 3. ConcurrentHashMapの使い方の例
+# 3. ConcurrentHashMapの使い方の例
 
 次は，ConcurrentHashMapを利用したシンプルな例．
 複数のスレッドが安全に操作できる点が重要．
@@ -78,7 +79,7 @@ public class SimpleConcurrentHashMapExample {
 ```
 上記コードは，同時に複数のスレッドから読み書きされる環境での使用に適しているである．
 
-## 4.キャッシュとは
+# 4.キャッシュとは
 キャッシュは，データの取得を高速化するために，頻繁にアクセスされるデータを一時的に保存する仕組みである．
 キャッシュのメリットは以下の通りである．
 - データベースや外部APIへのアクセス回数を減らし，アプリケーションのパフォーマンスを向上させることができる．
@@ -99,12 +100,12 @@ public class SimpleConcurrentHashMapExample {
 
 https://qiita-article-html-svg-demo.s3.ap-northeast-1.amazonaws.com/CacheSystemDemo.html
 
-## 5. TTL機能付きキャッシュの実装例
+# 5. TTL機能付きキャッシュの実装例
 
 ここでは，ConcurrentHashMapを利用して，各キャッシュエントリに有効期限（TTL）を設定し，
 期限切れのエントリを定期的に削除するTTL機能付きキャッシュを実装するである．
 
-### 5.1 キャッシュエントリクラスの実装
+## 5.1 キャッシュエントリクラスの実装
 
 まず，各キャッシュエントリ（キーに対応する値と有効期限）を管理するためのクラス`CacheValue`を実装する．
 ```java
@@ -134,7 +135,7 @@ class CacheValue<V> {
     }
 }
 ```
-### 5.2 TTL機能付きキャッシュクラスの実装
+## 5.2 TTL機能付きキャッシュクラスの実装
 
 次に，ConcurrentHashMapとScheduledExecutorServiceを用いてTTL付きキャッシュを実装する．
 一定間隔でキャッシュ内のエントリをチェックし，期限切れのものを削除する仕組みを持つ．
@@ -192,7 +193,7 @@ public class TTLCache<K, V> {
     }
 }
 ```
-### 5.3 TTLキャッシュの利用例
+## 5.3 TTLキャッシュの利用例
 
 ![画面収録 2025年4月14日 10時22分.gif](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/3757442/396e880e-005b-42d7-baff-87e13dff2612.gif)
 
