@@ -1,5 +1,5 @@
 ---
-title: JavaのMap・HashMap・ConcurrentHashMapの違いとTTL機能付きキャッシュの実装を実装してみよう
+title: キャッシュってなんなんだ？JavaのMap・HashMap・ConcurrentHashMapの違いとTTL機能付きキャッシュの実装を実装してみよう
 tags:
   - 'Java'
   - 'キャッシュ'
