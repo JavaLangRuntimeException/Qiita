@@ -104,7 +104,7 @@ https://qiita-article-html-svg-demo.s3.ap-northeast-1.amazonaws.com/CacheSystemD
 ここでは，ConcurrentHashMapを利用して，各キャッシュエントリに有効期限（TTL）を設定し，
 期限切れのエントリを定期的に削除するTTL機能付きキャッシュを実装するである．
 
-### 4.1 キャッシュエントリクラスの実装
+### 5.1 キャッシュエントリクラスの実装
 
 まず，各キャッシュエントリ（キーに対応する値と有効期限）を管理するためのクラス`CacheValue`を実装する．
 ```java
@@ -134,7 +134,7 @@ class CacheValue<V> {
     }
 }
 ```
-### 4.2 TTL機能付きキャッシュクラスの実装
+### 5.2 TTL機能付きキャッシュクラスの実装
 
 次に，ConcurrentHashMapとScheduledExecutorServiceを用いてTTL付きキャッシュを実装する．
 一定間隔でキャッシュ内のエントリをチェックし，期限切れのものを削除する仕組みを持つ．
@@ -192,7 +192,7 @@ public class TTLCache<K, V> {
     }
 }
 ```
-### 4.3 TTLキャッシュの利用例
+### 5.3 TTLキャッシュの利用例
 
 ![画面収録 2025年4月14日 10時22分.gif](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/3757442/396e880e-005b-42d7-baff-87e13dff2612.gif)
 
