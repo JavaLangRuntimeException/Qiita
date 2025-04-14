@@ -16,8 +16,10 @@ ignorePublish: false
 皆さんフロントエンドはなんのフレームワーク・ライブラリで開発していますか？本記事ではこれからフロント開発をしようという方が初めてWeb開発に触れる際に必要な情報を体系的に整理し, スムーズに学習を進めるための指針を示すことを目的とします．
 本記事においてはHTML, CSS, JavaScriptを用いた基本的なWebページの作成から, その後TypeScript, React, Next.jsを活用したモダンなWebアプリケーションの構築に至るまでの一連の流れを解説します, 最終成果物としてはVercelにデプロイされた実際に動作するWebアプリケーションが得られる構成となっています．
 
-## 1.1 必要なツール・環境の紹介およびセットアップ方法
+# 1. はじめに
 この記事を進めるためには以下のツールおよび環境の整備が必要である.
+
+## 1.1 コードを書くための環境を構築する
 まずソースコードを書くための開発環境をセットアップする．ちなみにWebアプリ開発は**コードエディタ**と**ブラウザ**があればできるので, それらを用意するだけでOK． 具体的には以下のツールをインストールすることで, 開発環境が整う.
 
 ### コードエディタ/IDE(統合開発環境)（VSCodeなど)
@@ -85,28 +87,28 @@ GitHubはオンラインでリポジトリを管理するためのサービス�
 brew install gh
 ```
 その後，githubCLIにログインする
-```
+```bash
 gh auth login 
 ```
 `GitHub.com`か`GitHub Enterprise Server`かを選択する．個人利用なら`GitHub.com`を選択すれば良い，
-```
+```bash
 ? What account do you want to log into?  [Use arrows to move, type to filter]
 > GitHub.com
   GitHub Enterprise Server
 ```
 
 `HTTPS`か`SSH`を選択する．よくわからない人は`HTTPS`でいいと思います．
-```
+```bash
 ? What is your preferred protocol for Git operations on this host?  [Use arrows to move, type to filter]
 > HTTPS
   SSH
 ```
 `Y`と入力してEnter
-```
+```bash
 ? Authenticate Git with your GitHub credentials? (Y/n)
 ```
 `Login with a web browser`で良いと思う．ブラウザでgithubへログインすることになる．
-```
+```bash
 ? How would you like to authenticate GitHub CLI?  [Use arrows to move, type to filter]
 > Login with a web browser
   Paste an authentication token
@@ -117,31 +119,69 @@ gh auth login
 0000-0000は英数字で表示され，ユーザ，タイミングによって異なる値である．
 :::
 
-```
+```bash
 ! First copy your one-time code: 0000-0000
 Press Enter to open github.com in your browser...
 ```
 web上でone-time codeを入力し，githubにログインすると以下のように表示される．
 
-```
+```bash
 ✓ Authentication complete.
 - gh config set -h github.com git_protocol https
 ✓ Configured git protocol
 ✓ Logged in as <githubアカウント名>
 ```
 
-## gh browse:リモートをgithub.comでアクセス
-現在のローカルリポジトリに対応するリモートリポジトリをgithub.comで開く
+### Node.js および npm の基本設定
+Node.jsはJavaScriptの実行環境であり, npmはパッケージ管理ツールである, Node.jsの公式サイト (https://nodejs.org/) からLTS版をダウンロードし, インストールする．インストール後, ターミナルで以下のコマンドを実行して動作確認を行う．
+macosやlinuxでは以下のコマンドを実行することでnode.jsとnpmのバージョン管理を行うことができるパッケージである`nodebrew`をインストールすることができる．`nodebrew`はnode.js(npm)のバージョン管理ツール」である．
+開発プロダクトによって使用されているnodeのバージョンが違うことはよくあるため、作業ごとにnodeのバージョンを切り替えなければいけないことがあります．
+その際に便利なのがこの`nodebrew`で，コマンドで特定のバージョンのインストールや，バージョンの切り替えができるようになります
 ```bash
-gh browse
+brew install nodebrew
+```
+インストールが完了したら以下のコマンドでセットアップをしよう
+```bash
+nodebrew setup
+```
+`nodebrew`のインストールが完了したら以下のコマンドでパスを通す．
+```bash
+echo 'export PATH=$HOME/.nodebrew/current/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc
 ```
 
-### Node.js および npm の基本設定
-Node.jsはJavaScriptの実行環境であり, npmはパッケージ管理ツールである, Node.jsの公式サイト (https://nodejs.org/) からLTS版をダウンロードし, インストールするである, インストール後, ターミナルで以下のコマンドを実行して動作確認を行うである,
+:::note warn
+使っているシェルが`bash`でない場合は, `~/.zshrc`や`~/.bash_profile`などにパスを通す必要があるので注意してください．
+:::
 
-    node -v
-    npm -v
+以下のコマンドで最新版のnodeをインストールする．
+```bash
+nodebrew install latest
+```
 
-これらのコマンドによりバージョン情報が表示されれば, 正常にセットアップが完了しているである, 今後はnpmを用いて必要なライブラリやフレームワークの導入を行うである.
+インストールした最新版のnodeをしようできるようにする
+```bash
+nodebrew use latest
+```
 
-以上の環境設定が整えば, 本記事の各部で解説する内容を実践する準備が完了するである, 各ツールのセットアップがスムーズに進むことで, 読者は安心して学習を始めることができるである.
+nodeとnpmがインストールができたか以下のコマンドで確認する．バージョンが出力されればOK．エラーならインストールに問題がある．
+
+> `-v`はバージョンを表示するオプションである．他のパッケージやライブラリのコマンドでも`-v`をつけるとバージョンの確認ができる(= インストールできたかが確認できる)
+
+```bash
+node -v 
+npm -v
+```
+
+:::note info
+**npmとは？**
+Node.jsのパッケージ管理ツールであり, JavaScriptのライブラリやフレームワークを簡単にインストール, アップデート, アンインストールすることができる．npmを使用することで, プロジェクトに必要な依存関係を簡単に管理することができる．
+npmはNode.jsと一緒にインストールされるため, Node.jsをインストールすることで自動的にnpmもインストールされる．
+:::
+
+
+これらのコマンドによりバージョン情報が表示されれば, 正常にセットアップが完了している． 今後はnpmを用いて必要なライブラリやフレームワークの導入を行う.(npmでインストールする方法は他の見出しで紹介します)
+
+以上の環境設定が整えば, 本記事の各部で解説する内容を実践する準備が完了する.ここからはどんどん開発していこう．
+
+
