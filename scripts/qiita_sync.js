@@ -91,9 +91,7 @@ async function processChangedFiles() {
       .map(line => line.trim())
       .filter(line =>
           line !== "" &&
-          line.endsWith('.md') &&
-          // public/.remote 以下は除外する
-          !line.includes('public/.remote/')
+          line.endsWith('.md')
       );
 
   if (changedFiles.length === 0) {
