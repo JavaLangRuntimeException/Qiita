@@ -4,51 +4,81 @@ on:
   pull_request:
     branches:
       - main
+  schedule:
+    - cron: "0 0 * * *"  # 毎日 UTC 0:00 (= JST 9:00) に実行
 
 permissions:
   contents: write
 
 jobs:
-  qiita-sync:
+  update-frontmatter:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          # PR のブランチをチェックアウト
           ref: ${{ github.head_ref }}
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.16.0'
-
+          node-version: "18.16.0"
       - name: Install dependencies
         run: npm install
+      - name: Update Markdown frontmatter
+        run: node scripts/update_frontmatter.js
+      - name: Commit and push updated frontmatter
+        env:
+          COMMIT_MESSAGE: "Frontmatter update by qiita_sync[bot]"
+        run: |
+          git add .
+          if ! git diff --cached --exit-code; then
+            git config --global user.name 'github-actions[bot]'
+            git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            echo "=== 差分 ==="
+            git diff --color || true
+            echo "=== コミット実行 ==="
+            git commit -m "${COMMIT_MESSAGE}"
+            git push origin HEAD:${{ github.head_ref }}
+          else
+            echo "コミットする差分はありません。"
+          fi
+        shell: bash
 
-      - name: Run Qiita sync script
+  qiita-sync:
+    runs-on: ubuntu-latest
+    needs: update-frontmatter
+    steps:
+      - name: Checkout repository (最新コミット)
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.16.0"
+      - name: Install dependencies
+        run: npm install
+      - name: Run Qiita API sync
         env:
           QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
         run: node scripts/qiita_sync.js
-
-      - name: Commit and push diff
+      - name: Commit and push changes from qiita_sync.js
         env:
-          COMMIT_MESSAGE: update by qiita_sync[bot]
+          COMMIT_MESSAGE: "Qiita sync update by qiita_sync[bot]"
         run: |
-          git add ./public/*
-          if ! git diff --staged --exit-code; then
+          git add .
+          if ! git diff --cached --exit-code; then
             git config --global user.name 'github-actions[bot]'
             git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          
-            echo "### 現在の差分 (git diff) ###"
+            echo "=== 差分 ==="
             git diff --color || true
-            echo "############################"
-            echo "以下の変更内容をコミットします："
-            git diff --color || true
+            echo "=== コミット実行 ==="
             git commit -m "${COMMIT_MESSAGE}"
-            echo "コミット完了．push を実行します..."
-            git push origin HEAD:refs/heads/${{ github.head_ref }}
+            git push origin HEAD:${{ github.head_ref }}
           else
-            echo "更新対象のファイルはありません"
+            echo "コミットする差分はありません。"
           fi
         shell: bash
