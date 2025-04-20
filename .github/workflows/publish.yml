@@ -33,7 +33,7 @@ jobs:
         env:
           COMMIT_MESSAGE: "Frontmatter update by qiita_sync[bot]"
         run: |
-          git add ./public/*
+          git add .
           if ! git diff --cached --exit-code; then
             git config --global user.name 'github-actions[bot]'
             git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
