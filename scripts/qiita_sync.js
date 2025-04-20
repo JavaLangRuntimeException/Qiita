@@ -43,9 +43,8 @@ async function syncFile(filePath) {
           "Content-Type": "application/json"
         }
       });
-      // 発行された記事情報で frontmatter を更新（id, created_at, updated_at）
+      // 発行された記事情報で frontmatter を更新（id,updated_at）
       data.id = response.data.id;
-      data.created_at = response.data.created_at;
       data.updated_at = response.data.updated_at;
     } else {
       console.log(`更新 (PATCH): ${filePath} (id: ${data.id})`);

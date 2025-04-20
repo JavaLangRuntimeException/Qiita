@@ -6,7 +6,7 @@ on:
       - main
   schedule:
     # - cron: "0 0 * * *"  # 毎日 UTC 0:00 (= JST 9:00) に実行
-    - cron: "20 9 * * *"
+    - cron: "40 9 * * *"
 
 permissions:
   contents: write
@@ -66,3 +66,20 @@ jobs:
         env:
           QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
         run: node scripts/qiita_sync.js
+      - name: Commit and push changes from qiita_sync.js
+        env:
+          COMMIT_MESSAGE: "Qiita sync update by qiita_sync[bot]"
+        run: |
+          git add .
+          if ! git diff --cached --exit-code; then
+            git config --global user.name 'github-actions[bot]'
+            git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            echo "=== 差分 ==="
+            git diff --color || true
+            echo "=== コミット実行 ==="
+            git commit -m "${COMMIT_MESSAGE}"
+            git push origin HEAD:${{ github.head_ref }}
+          else
+            echo "コミットする差分はありません。"
+          fi
+        shell: bash
