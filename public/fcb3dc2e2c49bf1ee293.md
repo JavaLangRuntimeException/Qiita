@@ -7,12 +7,11 @@ tags:
   - Web
   - SpringBoot
 private: false
-updated_at: '2025-04-20T23:17:00+09:00'
+updated_at: '2025-04-20T23:26:40+09:00'
 id: fcb3dc2e2c49bf1ee293
 organization_url_name: rits-rcc
 slide: false
 ignorePublish: false
-
 ---
 この記事はweb開発をするにあたっての3層アーキテクチャについて記述する．さらに例示としてPythonフレームワークであるDjangoとJavaのフレームワークであるSpring Frameworkと3層アーキテクチャの関係性についても記載する．
 

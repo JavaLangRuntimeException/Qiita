@@ -7,12 +7,11 @@ tags:
   - 動画
   - メディア
 private: false
-updated_at: '2025-04-20T23:16:47+09:00'
+updated_at: '2025-04-20T23:26:27+09:00'
 id: cb9b9000ccfbdf9971cd
 organization_url_name: rits-rcc
 slide: false
 ignorePublish: false
-
 ---
 ビデオ変換ツールなどメディア処理ツールは有名なもののほとんどはGUIでコマンドを使わないものが多い．コマンドでもメディア処理を行うことが可能で，**ffmpeg**が有名なパッケージの一種だろう．実際あまりにもできることが多すぎるのでここに書き残しておこうと思う．
 

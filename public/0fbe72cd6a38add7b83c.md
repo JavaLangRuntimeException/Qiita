@@ -6,12 +6,11 @@ tags:
   - コマンド
   - tree
 private: false
-updated_at: '2025-04-20T23:15:49+09:00'
+updated_at: '2025-04-20T23:25:36+09:00'
 id: 0fbe72cd6a38add7b83c
 organization_url_name: rits-rcc
 slide: false
 ignorePublish: false
-
 ---
 macで何気なく`tree`コマンドを入力したらこんなことが返ってきた．
 ```bash
