@@ -1,13 +1,13 @@
 ---
 title: newArticle001
 tags:
-  - 'qiiiita'
-private: false
+  - qiiiita
+private: true
 updated_at: ''
 id: null
 organization_url_name: null
 slide: false
 ignorePublish: false
-scheduled_at: "2025-04-21"
+scheduled_at: '2025-04-21'
 ---
 # new article body
