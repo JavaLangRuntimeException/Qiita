@@ -12,6 +12,7 @@ id: ab1bc7b976ed2dfad91c
 organization_url_name: rits-rcc
 slide: false
 ignorePublish: false
+scheduled_at: null
 ---
 ステータスコードって知っていますか？私は開発者として知っている1つの共通言語だと思う．知っておくことは必須級であると思う．本記事ではステータスコードについての説明から，対処法まで説明する．
 
