@@ -12,6 +12,7 @@ id: dc45b412d3fbd2ccb9e8
 organization_url_name: rits-rcc
 slide: false
 ignorePublish: false
+scheduled_at: null
 ---
 みなさんGo言語で開発したことはありますか？今回は新シリーズ`Project Gopher: Unlocking Go’s Secrets`と題しまして，Go言語の秘密を暴いていこうと思います．(というかGo言語の本質やライブラリでで気になったことを調べたレポートみたいなものです．)
 

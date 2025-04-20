@@ -9,7 +9,6 @@ id: 3e9791ea5a58da2f8b50
 organization_url_name: null
 slide: false
 ignorePublish: false
-created_at: '2025-03-31T13:15:37+09:00'
 scheduled_at: null
 ---
 みなさん共同開発においてmain(master)ブランチやdevelopブランチなどを保護することの重要性は知っていますか？developブランチにレビューなしに勝手にマージされることを防いだりもできます．
