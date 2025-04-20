@@ -7,8 +7,8 @@ tags:
   - Django
   - プログラミング初心者
 private: true
-updated_at: ''
-id: null
+updated_at: '2025-04-21T00:25:56+09:00'
+id: bb281bdf297229da68f8
 organization_url_name: null
 slide: false
 ignorePublish: false
