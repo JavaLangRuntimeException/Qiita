@@ -80,15 +80,21 @@ async function syncFile(filePath) {
 async function processChangedFiles() {
   let diffOutput = "";
   try {
+    // origin/main との比較で変更があったファイル一覧を取得
     diffOutput = execSync("git diff --name-only origin/main -- ./public").toString();
   } catch (error) {
     console.error("Error fetching changed files:", error.message);
     process.exit(1);
   }
   const changedFiles = diffOutput
-    .split('\n')
-    .map(line => line.trim())
-    .filter(line => line !== "" && line.endsWith('.md'));
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line =>
+          line !== "" &&
+          line.endsWith('.md') &&
+          // public/.remote 以下は除外する
+          !line.includes('public/.remote/')
+      );
 
   if (changedFiles.length === 0) {
     console.log("更新対象の Markdown ファイルはありません。");
@@ -96,7 +102,12 @@ async function processChangedFiles() {
   }
 
   for (const file of changedFiles) {
+    // パスが相対パスの場合、スクリプトの実行ディレクトリを考慮して調整
     const fullPath = path.resolve(file);
+    if (!fs.existsSync(fullPath)) {
+      console.log(`ファイルが存在しません: ${fullPath} はスキップします。`);
+      continue;
+    }
     await syncFile(fullPath);
   }
 }
