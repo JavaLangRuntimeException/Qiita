@@ -1,10 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const matter = require('gray-matter');
-const { execSync } = require('child_process');
+const glob = require('glob');
 
 /**
- * 現在の JST タイムスタンプ（YYYY-MM-DDTHH:mm:ss+09:00の形式）を返す
+ * 現在の JST タイムスタンプ（YYYY-MM-DDTHH:mm:ss+09:00 形式）を返す
  */
 function getJSTTimestamp() {
   const date = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
@@ -18,9 +18,9 @@ function getJSTTimestamp() {
 }
 
 /**
- * 現在の JST 時刻と scheduled_at の値 (YYYY-MM-DD) を比較し,
- * ・scheduled_at が未来の日付、または本日で JST 午前9時以前なら true (非公開)
- * ・それ以外なら false (公開)
+ * 現在の JST 時刻と scheduled_at の値 (YYYY-MM-DD) を比較し、
+ * ・scheduled_at が未来の日付、または本日で JST 午前9時以前なら true（非公開）
+ * ・それ以外なら false（公開）
  *
  * @param {string|null} scheduledAtValue - 'YYYY-MM-DD' 形式または null
  */
@@ -32,7 +32,6 @@ function computeDesiredPrivate(scheduledAtValue) {
   const nowHour = nowJST.getHours();
 
   if (!scheduledAtValue) {
-    // scheduled_at が null または falsy の場合は公開
     return false;
   }
 
@@ -66,34 +65,23 @@ function computeDesiredPrivate(scheduledAtValue) {
 }
 
 /**
- * origin/main との差分で変更があった Markdown ファイル (./public 以下/.remoteは除外) の frontmatter を更新
+ * public 以下の全 Markdown ファイル（.remote 配下は除外）を走査し、
+ * scheduled_at が存在しなければ null をセット、created_at が存在しなければ現在の JST タイムスタンプをセットし、
+ * scheduled_at の値から private の値を更新する。
  */
-function processChangedFiles() {
-  let diffOutput = "";
-  try {
-    // origin/main との比較で変更のあったファイル一覧を取得
-    diffOutput = execSync("git diff --name-only origin/main -- ./public").toString();
-  } catch (error) {
-    console.error("Error fetching changed files:", error.message);
-    process.exit(1);
-  }
-  const changedFiles = diffOutput
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line =>
-          line !== "" &&
-          line.endsWith('.md') &&
-          // .remote ディレクトリを除外
-          !line.includes('public/.remote/')
-      );
+function processAllFiles() {
+  const files = glob
+      .sync("./public/**/*.md")
+      .filter(file => !file.includes("public/.remote/"));
 
-  if (changedFiles.length === 0) {
+  if (files.length === 0) {
     console.log("更新対象の Markdown ファイルはありません。");
     return;
   }
 
   let anyUpdated = false;
-  for (const file of changedFiles) {
+
+  for (const file of files) {
     const fullPath = path.resolve(file);
     let fileContent = fs.readFileSync(fullPath, 'utf8');
     const parsed = matter(fileContent);
@@ -101,20 +89,21 @@ function processChangedFiles() {
     const content = parsed.content || "";
     let changed = false;
 
-    // scheduled_at が未定義の場合は null をセット
+    // scheduled_at が未定義なら null をセット
     if (data.scheduled_at === undefined) {
       data.scheduled_at = null;
       console.log(`${file} に scheduled_at が存在しなかったので null をセット`);
       changed = true;
     }
 
-    // created_at が未定義の場合は現在の JST タイムスタンプをセット
+    // created_at が未定義なら、現在の JST タイムスタンプをセット
     if (data.created_at === undefined) {
       data.created_at = getJSTTimestamp();
       console.log(`${file} に created_at が存在しなかったので ${data.created_at} をセット`);
       changed = true;
     }
 
+    // scheduled_at の値から、private の値を更新
     const desiredPrivate = computeDesiredPrivate(data.scheduled_at);
     if (data.private !== desiredPrivate) {
       console.log(`${file} の private を ${data.private} から ${desiredPrivate} に更新`);
@@ -136,4 +125,4 @@ function processChangedFiles() {
   }
 }
 
-processChangedFiles();
+processAllFiles();
