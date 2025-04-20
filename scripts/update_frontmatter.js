@@ -5,6 +5,7 @@ const glob = require('glob');
 
 /**
  * 現在の JST タイムスタンプ（YYYY-MM-DDTHH:mm:ss+09:00 形式）を返す
+ * ※ created_at 用のタイムスタンプ関数は、今回使用しません
  */
 function getJSTTimestamp() {
   const date = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
@@ -18,7 +19,7 @@ function getJSTTimestamp() {
 }
 
 /**
- * 現在の JST 時刻と scheduled_at の値 (YYYY-MM-DD) を比較し、
+ * JST と scheduled_at の値 (YYYY-MM-DD 形式) を比較し、
  * ・scheduled_at が未来の日付、または本日で JST 午前9時以前なら true（非公開）
  * ・それ以外なら false（公開）
  *
@@ -65,9 +66,29 @@ function computeDesiredPrivate(scheduledAtValue) {
 }
 
 /**
+ * scheduled_at.json を読み込み、ファイル名（basename: public/ は省略された値）
+ * として scheduled_at の値を取得する
+ */
+const scheduledAtFile = path.resolve("scheduled_at.json");
+let scheduledAtMapping = {};
+if (fs.existsSync(scheduledAtFile)) {
+  try {
+    scheduledAtMapping = JSON.parse(fs.readFileSync(scheduledAtFile, 'utf8'));
+  } catch (error) {
+    console.error("Error parsing scheduled_at.json:", error.message);
+    process.exit(1);
+  }
+} else {
+  console.error("Error: scheduled_at.json が見つかりません。");
+  process.exit(1);
+}
+
+/**
  * public 以下の全 Markdown ファイル（.remote 配下は除外）を走査し、
- * scheduled_at が存在しなければ null をセット、created_at が存在しなければ現在の JST タイムスタンプをセットし、
- * scheduled_at の値から private の値を更新する。
+ * ・各ファイルの basename が scheduled_at.json に存在すればその値を設定、
+ *  存在しなければ scheduled_at を null にセット、
+ * ・created_at は廃止のため、存在すれば削除する、
+ * ・scheduled_at の値から private の値を更新する。
  */
 function processAllFiles() {
   const files = glob
@@ -89,17 +110,28 @@ function processAllFiles() {
     const content = parsed.content || "";
     let changed = false;
 
-    // scheduled_at が未定義なら null をセット
-    if (data.scheduled_at === undefined) {
-      data.scheduled_at = null;
-      console.log(`${file} に scheduled_at が存在しなかったので null をセット`);
-      changed = true;
+    // ファイル名（basename: public/は除外された文字列）を取得
+    const baseName = path.basename(file);
+
+    // scheduled_at の更新: JSON に存在する場合その値、存在しなければ null にセット
+    if (scheduledAtMapping.hasOwnProperty(baseName)) {
+      if (data.scheduled_at !== scheduledAtMapping[baseName]) {
+        data.scheduled_at = scheduledAtMapping[baseName];
+        console.log(`${file} の scheduled_at を ${scheduledAtMapping[baseName]} に更新`);
+        changed = true;
+      }
+    } else {
+      if (data.scheduled_at !== null) {
+        data.scheduled_at = null;
+        console.log(`${file} の scheduled_at が JSON に存在しなかったので null をセット`);
+        changed = true;
+      }
     }
 
-    // created_at が未定義なら、現在の JST タイムスタンプをセット
-    if (data.created_at === undefined) {
-      data.created_at = getJSTTimestamp();
-      console.log(`${file} に created_at が存在しなかったので ${data.created_at} をセット`);
+    // created_at を削除（もし存在すれば）
+    if (data.created_at !== undefined) {
+      delete data.created_at;
+      console.log(`${file} から created_at を削除`);
       changed = true;
     }
 
