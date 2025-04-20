@@ -9,7 +9,7 @@ id: 7849b32bc223d4aa0247
 organization_url_name: null
 slide: false
 ignorePublish: false
-scheduled_at: null
+
 ---
 皆さんC# 書いたことありますか？Web開発(.NET)やUnity(ゲームやXR開発)で見たことあるはず？だと思います．私の意見ですが諸学者にも向いているし，用途も多いので初めて学ぶ言語にはふさわしいのではないかなと思います．
 本記事ではC#の基本的な文法やデータ型，条件分岐，繰り返し処理，配列操作などをまとめていきます．

@@ -12,7 +12,7 @@ id: fcb3dc2e2c49bf1ee293
 organization_url_name: rits-rcc
 slide: false
 ignorePublish: false
-scheduled_at: null
+
 ---
 この記事はweb開発をするにあたっての3層アーキテクチャについて記述する．さらに例示としてPythonフレームワークであるDjangoとJavaのフレームワークであるSpring Frameworkと3層アーキテクチャの関係性についても記載する．
 

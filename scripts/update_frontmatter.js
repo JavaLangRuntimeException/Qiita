@@ -19,10 +19,9 @@ function getJSTTimestamp() {
 
 /**
  * scheduled_at の値（YYYY-MM-DD 形式または null）から、
- * 現在の JST 時刻と比較して、公開（false）か非公開（true）かを返す。
- *
+ * 現在の JST 時刻と比較し、
  * ・scheduled_at が未来の日付、または本日で JST 午前9時以前なら true（非公開）
- * ・それ以外なら false（公開）
+ * ・それ以外なら false（公開） を返す。
  *
  * @param {string|null} scheduledAtValue
  */
@@ -84,8 +83,9 @@ if (fs.existsSync(scheduledAtFile)) {
 /**
  * public 以下（.remote 配下は除外）の全 Markdown ファイルを走査し、
  * ・各ファイルの basename が scheduled_at.json に無ければ追加して null をセット
- * ・Markdown の frontmatter からは created_at と scheduled_at を削除する
- * ・scheduled_at の値（JSON の値）によって、private の値を更新する
+ * ・Markdown の frontmatter からは created_at と scheduled_at を削除する（scheduled_at は JSON 管理）
+ * ・JSON の scheduled_at の値に基づき、private の値を更新する
+ * ・最後に更新後の scheduledAtMapping を scheduled_at.json に上書き保存する
  */
 function processAllFiles() {
   const files = glob
@@ -107,7 +107,7 @@ function processAllFiles() {
     const content = parsed.content || "";
     let changed = false;
 
-    // ここでファイル名（basename）を取得（public/ は省略される）
+    // ファイル名（basename）を取得（"public/"は除外された文字列）
     const baseName = path.basename(file);
 
     // JSON にキーがなければ追加して null をセット
@@ -115,7 +115,7 @@ function processAllFiles() {
       scheduledAtMapping[baseName] = null;
       console.log(`${file} のキーが scheduled_at.json に存在しなかったため、null を追加`);
     }
-    // scheduled_at の値は JSON の値から取得 (scheduled_at は frontmatter には記録しない)
+    // JSON に記載されている scheduled_at の値を取得
     const scheduledAtValue = scheduledAtMapping[baseName];
 
     // created_at を削除（もし存在すれば）
@@ -125,14 +125,14 @@ function processAllFiles() {
       changed = true;
     }
 
-    // scheduled_at は JSON 管理のため frontmatter から削除する
+    // scheduled_at は JSON 管理のため、frontmatter から削除する
     if (data.scheduled_at !== undefined) {
       delete data.scheduled_at;
       console.log(`${file} から scheduled_at を削除（JSON 管理）`);
       changed = true;
     }
 
-    // scheduled_at の値（JSON の値）から、private の値を更新
+    // scheduled_at の値（JSON の値）から、private の値を更新する
     const desiredPrivate = computeDesiredPrivate(scheduledAtValue);
     if (data.private !== desiredPrivate) {
       console.log(`${file} の private を ${data.private} から ${desiredPrivate} に更新`);
@@ -153,24 +153,8 @@ function processAllFiles() {
     console.log("更新すべき frontmatter はありませんでした。");
   }
 
-
-  /**
-   * scheduled_at.json を読み込み、ファイル名（basename: public/ は省略された値）
-   * として scheduled_at の値を取得する
-   */
-  const scheduledAtFile = path.resolve("scheduled_at.json");
-  let scheduledAtMapping = {};
-  if (fs.existsSync(scheduledAtFile)) {
-    try {
-      scheduledAtMapping = JSON.parse(fs.readFileSync(scheduledAtFile, 'utf8'));
-    } catch (error) {
-      console.error("Error parsing scheduled_at.json:", error.message);
-      process.exit(1);
-    }
-  } else {
-    console.error("Error: scheduled_at.json が見つかりません。");
-    process.exit(1);
-  }
-
-  processAllFiles();
+  // 更新後の scheduledAtMapping を scheduled_at.json に上書き保存する
+  fs.writeFileSync(scheduledAtFile, JSON.stringify(scheduledAtMapping, null, 2), 'utf8');
 }
+
+processAllFiles();

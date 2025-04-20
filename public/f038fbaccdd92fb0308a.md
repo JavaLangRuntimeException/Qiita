@@ -10,7 +10,7 @@ id: f038fbaccdd92fb0308a
 organization_url_name: rits-rcc
 slide: false
 ignorePublish: false
-scheduled_at: null
+
 ---
 SQLって知っていますか？バックエンド開発やデータ分析によくきく言語ですよね？いわゆる**縁の下の力持ち**的な存在です！SQLはエンジニアに限らず全てのデータ分析をする仕事をする人ならば必要な言語かなと思います．本記事ではSQLを学ぶことの利点とその基本的な関数の使用例や演算関数の使用例について記載する．
 
