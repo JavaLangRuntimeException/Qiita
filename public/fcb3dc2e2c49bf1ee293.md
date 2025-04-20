@@ -13,6 +13,7 @@ organization_url_name: rits-rcc
 slide: false
 ignorePublish: false
 scheduled_at: null
+created_at: '2025-04-20T18:35:11+09:00'
 ---
 この記事はweb開発をするにあたっての3層アーキテクチャについて記述する．さらに例示としてPythonフレームワークであるDjangoとJavaのフレームワークであるSpring Frameworkと3層アーキテクチャの関係性についても記載する．
 

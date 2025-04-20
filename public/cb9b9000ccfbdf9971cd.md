@@ -13,6 +13,7 @@ organization_url_name: rits-rcc
 slide: false
 ignorePublish: false
 scheduled_at: null
+created_at: '2025-04-20T18:35:11+09:00'
 ---
 ビデオ変換ツールなどメディア処理ツールは有名なもののほとんどはGUIでコマンドを使わないものが多い．コマンドでもメディア処理を行うことが可能で，**ffmpeg**が有名なパッケージの一種だろう．実際あまりにもできることが多すぎるのでここに書き残しておこうと思う．
 

@@ -13,6 +13,7 @@ organization_url_name: rits-rcc
 slide: false
 ignorePublish: false
 scheduled_at: null
+created_at: '2025-04-20T18:35:11+09:00'
 ---
 ステータスコードって知っていますか？私は開発者として知っている1つの共通言語だと思う．知っておくことは必須級であると思う．本記事ではステータスコードについての説明から，対処法まで説明する．
 

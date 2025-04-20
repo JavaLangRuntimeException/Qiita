@@ -10,6 +10,7 @@ organization_url_name: rits-rcc
 slide: false
 ignorePublish: false
 scheduled_at: null
+created_at: '2025-04-20T18:35:11+09:00'
 ---
 dockerのコマンドって長いと思いませんか？また複数のコマンドを1つのコマンドで同時に実行できるといいですよね．実はMakefileは非常に奥が深いが，ここでは簡単な使い方を紹介する．
 

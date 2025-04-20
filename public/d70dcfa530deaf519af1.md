@@ -11,6 +11,7 @@ organization_url_name: rits-rcc
 slide: false
 ignorePublish: false
 scheduled_at: null
+created_at: '2025-04-20T18:35:11+09:00'
 ---
 あるブランチで作業していて他のブランチに移動した際にせっかくした作業が消えてしまった（または、ブランチ移動できないというエラーが出る）ことはありませんか？
 git stashというコマンドを用いるとそのような作業中の差分を一旦退避できます！

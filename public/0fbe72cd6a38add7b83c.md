@@ -12,6 +12,7 @@ organization_url_name: rits-rcc
 slide: false
 ignorePublish: false
 scheduled_at: null
+created_at: '2025-04-20T18:35:11+09:00'
 ---
 macで何気なく`tree`コマンドを入力したらこんなことが返ってきた．
 ```bash
