@@ -34,7 +34,7 @@ async function syncFile(filePath) {
     };
 
     let response;
-    if (!data.id || data.id === null) {
+    if (!data.id) {
       console.log(`新規投稿: ${filePath}`);
       // POST で新規記事作成
       response = await axios.post("https://qiita.com/api/v2/items", payload, {

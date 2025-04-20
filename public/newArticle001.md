@@ -2,9 +2,9 @@
 title: newArticle001
 tags:
   - qiiiita
-private: true
-updated_at: '2025-04-20T23:30:05+09:00'
-id: 95171e54204d9ba262e8
+private: false
+updated_at: ''
+id: null
 organization_url_name: null
 slide: false
 ignorePublish: false
