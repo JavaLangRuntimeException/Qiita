@@ -11,6 +11,7 @@ id: 0fbe72cd6a38add7b83c
 organization_url_name: rits-rcc
 slide: false
 ignorePublish: false
+scheduled_at: null
 ---
 macで何気なく`tree`コマンドを入力したらこんなことが返ってきた．
 ```bash
