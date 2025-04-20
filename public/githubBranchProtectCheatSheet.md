@@ -4,7 +4,7 @@ tags:
   - git
   - github
 private: false
-updated_at: '2025-03-31T13:15:37+09:00'
+updated_at: '2025-04-14T11:29:48+09:00'
 id: 3e9791ea5a58da2f8b50
 organization_url_name: null
 slide: false
@@ -42,6 +42,10 @@ https://qiita.com/JavaLangRuntimeException/items/d388717fc1436bc3ec9d
 Ruby・Ruby on Rails
 
 https://qiita.com/JavaLangRuntimeException/items/42d935cf92c212f1c7ec
+
+C#/.NET/Unity
+
+https://qiita.com/JavaLangRuntimeException/items/7849b32bc223d4aa0247
 
 SQL
 
