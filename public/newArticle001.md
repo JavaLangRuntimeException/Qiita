@@ -3,8 +3,8 @@ title: newArticle001
 tags:
   - qiiiita
 private: false
-updated_at: ''
-id: null
+updated_at: '2025-04-20T18:37:46+09:00'
+id: 1df5652a04a1caf5da86
 organization_url_name: null
 slide: false
 ignorePublish: false
