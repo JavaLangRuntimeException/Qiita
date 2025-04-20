@@ -5,7 +5,8 @@ on:
     branches:
       - main
   schedule:
-    - cron: "0 0 * * *"  # 毎日 UTC 0:00 (= JST 9:00) に実行
+    # - cron: "0 0 * * *"  # 毎日 UTC 0:00 (= JST 9:00) に実行
+    - cron: "50 8 * * *"
 
 permissions:
   contents: write
