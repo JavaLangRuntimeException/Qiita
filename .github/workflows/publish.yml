@@ -2,6 +2,7 @@ name: Publish and Sync Qiita Articles
 
 on:
   pull_request:
+    types: [opened, reopened, synchronize]
     branches:
       - main
   schedule:
@@ -11,74 +12,109 @@ permissions:
   contents: write
 
 jobs:
-  update-frontmatter:
+  setup-matrix:
     runs-on: ubuntu-latest
+    # ここで下の steps.set_matrix.outputs.result を matrix として公開
+    outputs:
+      matrix: ${{ steps.set_matrix.outputs.result }}
     steps:
-      - name: Checkout repository
+      - name: Set matrix for current event
+        id: set_matrix
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let matrix;
+            if (context.eventName === 'pull_request') {
+              // PR のときは head ブランチだけ
+              matrix = { include: [ { branch: context.payload.pull_request.head.ref } ] };
+            } else {
+              // schedule のときは main ベースのオープンPRを全部
+              const { data: prs } = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: "open",
+              });
+              const filtered = prs.filter(pr => pr.base.ref === "main");
+              matrix = {
+                include: filtered.map(pr => ({ branch: pr.head.ref }))
+              };
+            }
+            // 戻り値をそのまま JSON 化して outputs.result に載せてくれる
+            return matrix;
+
+  update-frontmatter:
+    needs: setup-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      # ここで文字列化されたJSONをパース
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
+    steps:
+      - name: Checkout repository (branch: ${{ matrix.branch }})
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          # PR のブランチをチェックアウト
-          ref: ${{ github.head_ref }}
+          ref: ${{ matrix.branch }}
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18.16.0"
+          node-version: "18"
+
       - name: Install dependencies
         run: npm install
-      - name: Update Markdown frontmatter
+
+      - name: Update frontmatter
         run: node scripts/update_frontmatter.js
-      - name: Commit and push updated frontmatter
+
+      - name: Commit & Push frontmatter
         env:
-          COMMIT_MESSAGE: "Frontmatter update by qiita_sync[bot]"
+          COMMIT_MSG: "Frontmatter update by qiita_sync[bot]"
         run: |
           git add .
           if ! git diff --cached --exit-code; then
-            git config --global user.name 'github-actions[bot]'
-            git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            echo "=== 差分 ==="
-            git diff --color || true
-            echo "=== コミット実行 ==="
-            git commit -m "${COMMIT_MESSAGE}"
-            git push origin HEAD:${{ github.head_ref }}
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m "${COMMIT_MSG}"
+            git push origin HEAD:${{ matrix.branch }}
           else
-            echo "コミットする差分はありません。"
+            echo "No changes to commit"
           fi
-        shell: bash
 
   qiita-sync:
-    runs-on: ubuntu-latest
     needs: update-frontmatter
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
     steps:
-      - name: Checkout repository (最新コミット)
+      - name: Checkout repository (branch: ${{ matrix.branch }})
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: ${{ github.head_ref }}
+          ref: ${{ matrix.branch }}
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18.16.0"
+          node-version: "18"
+
       - name: Install dependencies
         run: npm install
-      - name: Run Qiita API sync
+
+      - name: Run Qiita sync
         env:
           QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
         run: node scripts/qiita_sync.js
-      - name: Commit and push changes from qiita_sync.js
+
+      - name: Commit & Push Qiita sync changes
         env:
-          COMMIT_MESSAGE: "Qiita sync update by qiita_sync[bot]"
+          COMMIT_MSG: "Qiita sync update by qiita_sync[bot]"
         run: |
           git add .
           if ! git diff --cached --exit-code; then
-            git config --global user.name 'github-actions[bot]'
-            git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            echo "=== 差分 ==="
-            git diff --color || true
-            echo "=== コミット実行 ==="
-            git commit -m "${COMMIT_MESSAGE}"
-            git push origin HEAD:${{ github.head_ref }}
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m "${COMMIT_MSG}"
+            git push origin HEAD:${{ matrix.branch }}
           else
-            echo "コミットする差分はありません。"
+            echo "No changes to commit"
           fi
-        shell: bash
