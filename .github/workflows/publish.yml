@@ -3,8 +3,7 @@ name: Publish and Sync Qiita Articles
 on:
   pull_request:
     types: [opened, reopened, synchronize]
-    branches:
-      - main
+    branches: [ main ]
   schedule:
     - cron: "0 0 * * *"  # 毎日 UTC 0:00 (= JST 9:00) に実行
 
@@ -14,8 +13,9 @@ permissions:
 jobs:
   setup-matrix:
     runs-on: ubuntu-latest
+    # ここで下の steps.set_matrix.outputs.result を matrix として公開
     outputs:
-      matrix: ${{ steps.set_matrix.outputs.matrix }}
+      matrix: ${{ steps.set_matrix.outputs.result }}
     steps:
       - name: Set matrix for current event
         id: set_matrix
@@ -24,88 +24,96 @@ jobs:
           script: |
             let matrix;
             if (context.eventName === 'pull_request') {
-              // pull_request のときは PR の head ブランチだけ
-              const head = context.payload.pull_request.head.ref;
-              matrix = { include: [{ branch: head }] };
+              // PR のときは head ブランチだけ
+              matrix = { include: [ { branch: context.payload.pull_request.head.ref } ] };
             } else {
-              // schedule のときは open な main ベースのPRを取得
-              const { data: pullRequests } = await github.rest.pulls.list({
+              // schedule のときは main ベースのオープンPRを全部
+              const { data: prs } = await github.rest.pulls.list({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 state: "open",
               });
-              const filtered = pullRequests.filter(pr => pr.base.ref === "main");
+              const filtered = prs.filter(pr => pr.base.ref === "main");
               matrix = {
                 include: filtered.map(pr => ({ branch: pr.head.ref }))
               };
             }
-            return { matrix: JSON.stringify(matrix) };
+            // 戻り値をそのまま JSON 化して outputs.result に載せてくれる
+            return matrix;
 
   update-frontmatter:
     needs: setup-matrix
-    strategy:
-      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
     runs-on: ubuntu-latest
+    strategy:
+      # ここで文字列化されたJSONをパース
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
     steps:
-      - name: Checkout repository
+      - name: Checkout repository (branch: ${{ matrix.branch }})
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          # PR のときは github.head_ref、schedule のときは matrix.branch
-          ref: ${{ github.event_name == 'pull_request' && github.head_ref || matrix.branch }}
+          ref: ${{ matrix.branch }}
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18.16.0"
+          node-version: "18"
+
       - name: Install dependencies
         run: npm install
-      - name: Update Markdown frontmatter
+
+      - name: Update frontmatter
         run: node scripts/update_frontmatter.js
-      - name: Commit and push updated frontmatter
+
+      - name: Commit & Push frontmatter
         env:
-          COMMIT_MESSAGE: "Frontmatter update by qiita_sync[bot]"
+          COMMIT_MSG: "Frontmatter update by qiita_sync[bot]"
         run: |
           git add .
           if ! git diff --cached --exit-code; then
-            git config --global user.name 'github-actions[bot]'
-            git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m "${COMMIT_MESSAGE}"
-            git push origin HEAD:${{ github.event_name == 'pull_request' && github.head_ref || matrix.branch }}
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m "${COMMIT_MSG}"
+            git push origin HEAD:${{ matrix.branch }}
           else
-            echo "No changes to commit."
+            echo "No changes to commit"
           fi
 
   qiita-sync:
     needs: update-frontmatter
+    runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
-    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repository (branch: ${{ matrix.branch }})
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'pull_request' && github.head_ref || matrix.branch }}
+          ref: ${{ matrix.branch }}
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18.16.0"
+          node-version: "18"
+
       - name: Install dependencies
         run: npm install
-      - name: Run Qiita API sync
+
+      - name: Run Qiita sync
         env:
           QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
         run: node scripts/qiita_sync.js
-      - name: Commit and push changes from qiita_sync.js
+
+      - name: Commit & Push Qiita sync changes
         env:
-          COMMIT_MESSAGE: "Qiita sync update by qiita_sync[bot]"
+          COMMIT_MSG: "Qiita sync update by qiita_sync[bot]"
         run: |
           git add .
           if ! git diff --cached --exit-code; then
-            git config --global user.name 'github-actions[bot]'
-            git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m "${COMMIT_MESSAGE}"
-            git push origin HEAD:${{ github.event_name == 'pull_request' && github.head_ref || matrix.branch }}
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m "${COMMIT_MSG}"
+            git push origin HEAD:${{ matrix.branch }}
           else
-            echo "No changes to commit."
+            echo "No changes to commit"
           fi
