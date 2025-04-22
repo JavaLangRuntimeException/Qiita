@@ -2,6 +2,7 @@ name: Publish and Sync Qiita Articles
 
 on:
   pull_request:
+    types: [opened, reopened, synchronize]
     branches:
       - main
   schedule:
@@ -11,15 +12,44 @@ permissions:
   contents: write
 
 jobs:
+  # 最初に matrix 用のブランチ一覧をセットアップするジョブ
+  setup-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set_matrix.outputs.matrix }}
+    steps:
+      - name: Set matrix for current event
+        id: set_matrix
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let matrix;
+            if (context.eventName === 'pull_request') {
+              // pull_request イベントの場合は、該当のPRの head ブランチのみ
+              matrix = { include: [ { branch: context.payload.pull_request.head.ref } ] };
+            } else {
+              // schedule イベントの場合は、open状態かつ base==main のPRを全て取得
+              const { data: pullRequests } = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: "open",
+              });
+              const filtered = pullRequests.filter(pr => pr.base.ref === "main");
+              matrix = { include: filtered.map(pr => ({ branch: pr.head.ref })) };
+            }
+            return { matrix: JSON.stringify(matrix) };
+
   update-frontmatter:
+    needs: setup-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repository (branch: ${{ matrix.branch }})
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          # PR のブランチをチェックアウト
-          ref: ${{ github.head_ref }}
+          ref: ${{ matrix.branch }}
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -40,21 +70,23 @@ jobs:
             git diff --color || true
             echo "=== コミット実行 ==="
             git commit -m "${COMMIT_MESSAGE}"
-            git push origin HEAD:${{ github.head_ref }}
+            git push origin HEAD:${{ matrix.branch }}
           else
             echo "コミットする差分はありません。"
           fi
         shell: bash
 
   qiita-sync:
-    runs-on: ubuntu-latest
     needs: update-frontmatter
+    strategy:
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository (最新コミット)
+      - name: Checkout repository (branch: ${{ matrix.branch }})
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: ${{ github.head_ref }}
+          ref: ${{ matrix.branch }}
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -77,7 +109,7 @@ jobs:
             git diff --color || true
             echo "=== コミット実行 ==="
             git commit -m "${COMMIT_MESSAGE}"
-            git push origin HEAD:${{ github.head_ref }}
+            git push origin HEAD:${{ matrix.branch }}
           else
             echo "コミットする差分はありません。"
           fi
