@@ -12,7 +12,6 @@ permissions:
   contents: write
 
 jobs:
-  # 最初に matrix 用のブランチ一覧をセットアップするジョブ
   setup-matrix:
     runs-on: ubuntu-latest
     outputs:
@@ -25,10 +24,10 @@ jobs:
           script: |
             let matrix;
             if (context.eventName === 'pull_request') {
-              // pull_request イベントの場合は、該当のPRの head ブランチのみ
-              matrix = { include: [ { branch: context.payload.pull_request.head.ref } ] };
+              // プルリク時は head_ref だけを使う
+              matrix = { include: [ { branch: github.context.head_ref } ] };
             } else {
-              // schedule イベントの場合は、open状態かつ base==main のPRを全て取得
+              // schedule 時は open な PR 全部
               const { data: pullRequests } = await github.rest.pulls.list({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -45,11 +44,12 @@ jobs:
       matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository (branch: ${{ matrix.branch }})
+      - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: ${{ matrix.branch }}
+          # PR のときは github.head_ref、それ以外（schedule）は matrix.branch
+          ref: ${{ github.head_ref || matrix.branch }}
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -66,13 +66,10 @@ jobs:
           if ! git diff --cached --exit-code; then
             git config --global user.name 'github-actions[bot]'
             git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            echo "=== 差分 ==="
-            git diff --color || true
-            echo "=== コミット実行 ==="
             git commit -m "${COMMIT_MESSAGE}"
-            git push origin HEAD:${{ matrix.branch }}
+            git push origin HEAD:${{ github.head_ref || matrix.branch }}
           else
-            echo "コミットする差分はありません。"
+            echo "No changes to commit."
           fi
         shell: bash
 
@@ -82,11 +79,11 @@ jobs:
       matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository (branch: ${{ matrix.branch }})
+      - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: ${{ matrix.branch }}
+          ref: ${{ github.head_ref || matrix.branch }}
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -104,13 +101,11 @@ jobs:
           git add .
           if ! git diff --cached --exit-code; then
             git config --global user.name 'github-actions[bot]'
-            git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            echo "=== 差分 ==="
-            git diff --color || true
-            echo "=== コミット実行 ==="
+            git config --global user.email '41898282+github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]issi'
+            git config --global user.email '41898282+github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]issi'
             git commit -m "${COMMIT_MESSAGE}"
-            git push origin HEAD:${{ matrix.branch }}
+            git push origin HEAD:${{ github.head_ref || matrix.branch }}
           else
-            echo "コミットする差分はありません。"
+            echo "No changes to commit."
           fi
         shell: bash
