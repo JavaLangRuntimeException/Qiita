@@ -24,17 +24,20 @@ jobs:
           script: |
             let matrix;
             if (context.eventName === 'pull_request') {
-              // プルリク時は head_ref だけを使う
-              matrix = { include: [ { branch: github.context.head_ref } ] };
+              // pull_request のときは PR の head ブランチだけ
+              const head = context.payload.pull_request.head.ref;
+              matrix = { include: [{ branch: head }] };
             } else {
-              // schedule 時は open な PR 全部
+              // schedule のときは open な main ベースのPRを取得
               const { data: pullRequests } = await github.rest.pulls.list({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 state: "open",
               });
               const filtered = pullRequests.filter(pr => pr.base.ref === "main");
-              matrix = { include: filtered.map(pr => ({ branch: pr.head.ref })) };
+              matrix = {
+                include: filtered.map(pr => ({ branch: pr.head.ref }))
+              };
             }
             return { matrix: JSON.stringify(matrix) };
 
@@ -48,8 +51,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          # PR のときは github.head_ref、それ以外（schedule）は matrix.branch
-          ref: ${{ github.head_ref || matrix.branch }}
+          # PR のときは github.head_ref、schedule のときは matrix.branch
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || matrix.branch }}
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -67,11 +70,10 @@ jobs:
             git config --global user.name 'github-actions[bot]'
             git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git commit -m "${COMMIT_MESSAGE}"
-            git push origin HEAD:${{ github.head_ref || matrix.branch }}
+            git push origin HEAD:${{ github.event_name == 'pull_request' && github.head_ref || matrix.branch }}
           else
             echo "No changes to commit."
           fi
-        shell: bash
 
   qiita-sync:
     needs: update-frontmatter
@@ -83,7 +85,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: ${{ github.head_ref || matrix.branch }}
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || matrix.branch }}
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -101,11 +103,9 @@ jobs:
           git add .
           if ! git diff --cached --exit-code; then
             git config --global user.name 'github-actions[bot]'
-            git config --global user.email '41898282+github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]issi'
-            git config --global user.email '41898282+github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]@users.noreply.github-actions[bot]issi'
+            git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git commit -m "${COMMIT_MESSAGE}"
-            git push origin HEAD:${{ github.head_ref || matrix.branch }}
+            git push origin HEAD:${{ github.event_name == 'pull_request' && github.head_ref || matrix.branch }}
           else
             echo "No changes to commit."
           fi
-        shell: bash
