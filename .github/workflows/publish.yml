@@ -35,11 +35,18 @@ jobs:
                 state: "open",
               });
               const filtered = prs.filter(pr => pr.base.ref === "main");
-              matrix = {
-                include: filtered.map(pr => ({ branch: pr.head.ref }))
-              };
+              if (filtered.length === 0) {
+                // 対象PRがなければ、デフォルトブランチを使用
+                matrix = { include: [ { branch: github.head_ref } ] };
+              } else {
+                matrix = {
+                  include: filtered.map(pr => ({ branch: pr.head.ref }))
+                };
+              }
             }
-            // 戻り値をそのまま JSON 化して outputs.result に載せてくれる
+            // 明示的に結果を設定
+            core.setOutput('result', JSON.stringify(matrix));
+            console.log('Matrix data:', JSON.stringify(matrix));
             return matrix;
 
   update-frontmatter:
@@ -48,6 +55,9 @@ jobs:
     strategy:
       # ここで文字列化されたJSONをパース
       matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
+
+    # マトリックスの値が空の場合はスキップ
+    if: ${{ fromJson(needs.setup-matrix.outputs.matrix).include[0] }}
     steps:
       - name: 'Checkout repository (branch: ${{ matrix.branch }})'
         uses: actions/checkout@v3
@@ -85,6 +95,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
+
+    # マトリックスの値が空の場合はスキップ
+    if: ${{ fromJson(needs.setup-matrix.outputs.matrix).include[0] }}
     steps:
       - name: 'Checkout repository (branch: ${{ matrix.branch }})'
         uses: actions/checkout@v3
