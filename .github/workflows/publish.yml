@@ -26,7 +26,7 @@ jobs:
             let matrix;
             if (context.eventName === 'pull_request') {
               // PR のときは head ブランチだけ
-              matrix = { include: [ { branch: context.payload.pull_request.head.ref } ] };
+              matrix = { include: [ { branch: github.head_ref } ] };
             } else {
               // schedule のときは main ベースのオープンPRを全部
               const { data: prs } = await github.rest.pulls.list({
