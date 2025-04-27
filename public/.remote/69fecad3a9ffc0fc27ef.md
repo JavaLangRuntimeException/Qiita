@@ -6,7 +6,7 @@ tags:
   - ソフトウェア設計
   - ソフトウェア工学
 private: false
-updated_at: '2025-04-20T23:28:18+09:00'
+updated_at: '2025-04-20T23:33:06+09:00'
 id: 69fecad3a9ffc0fc27ef
 organization_url_name: rits-rcc
 slide: false
