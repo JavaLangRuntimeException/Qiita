@@ -1,0 +1,556 @@
+---
+title: 'Unityでゲーム作成する際に複数プレイヤーで値や状態の共有を行おう[Photonカスタムプロパティについて]'
+tags:
+  - Unity
+  - Photon
+  - PUN
+  - Networking
+  - MultiplayerGame
+private: true
+updated_at: '2025-04-28T00:01:17+09:00'
+id: fc57b2751c7bc5d78340
+organization_url_name: null
+slide: false
+ignorePublish: false
+---
+みなさんゲームクライアント開発で値をプレイヤー同士でどのように共有していますか？今回はPhoton PUNのカスタムプロパティについて紹介する．Photonは, Unity等でマルチプレイゲーム開発を行う際に広く使われているネットワークエンジンである. 特にUnity向けのPhoton PUN (Photon Unity Networking)は, 少ないコードでリアルタイム通信を実現できる強力なライブラリである.
+
+**カスタムプロパティ**は, Photonの便利な機能の一つで, ゲームのデータを簡単に全プレイヤーと共有できる. この記事では, 実際のプロジェクト例を使って, カスタムプロパティの基本から応用までを分かりやすく解説する.
+
+## カスタムプロパティとは何か？
+
+カスタムプロパティは簡単に言うと「自動的に同期されるデータ」である. 具体的には:
+
+- キーと値のペアで構成されるデータ (例: "health" = 100)
+- ルーム, プレイヤー, オブジェクトにそれぞれ設定できる
+- 設定すると自動的に全プレイヤーに同期される
+- データが更新されたときに通知を受け取れる
+
+これにより, サーバープログラミングなしでゲームの状態を簡単に共有できる.
+
+### カスタムプロパティの主な特徴
+
+- **多様なデータ型をサポート**: 数値, 文字列, 真偽値, 配列などを扱える
+- **自動同期**: 手動で同期処理を書く必要がない
+- **簡単なAPI**: 設定と取得が簡単
+- **更新通知**: データが変わったときのイベントを受け取れる
+- **柔軟な使用方法**: シンプルな値から複雑なデータ構造まで対応
+
+## 実践的な実装例: GameManagerクラス
+
+実際のゲーム開発でどのようにカスタムプロパティを使うか見ていこう. 以下の例は実際のプロジェクトで使われたGameManagerクラスを簡略化したものである.
+
+### 基本的な実装構造
+
+```csharp
+using Photon.Pun;       // Photon PUN用の名前空間
+using Photon.Realtime;  // Photonの基本機能用の名前空間
+using ExitGames.Client.Photon;  // 低レベルAPIのための名前空間
+using UnityEngine;
+
+// カスタムプロパティを扱うクラスはMonoBehaviourPunCallbacksを継承するとよい
+// これによりPhotonの各種コールバックを簡単に受け取れる
+public class GameManager : MonoBehaviourPunCallbacks
+{
+    // このクラスでゲームの状態を管理する
+}
+```
+
+### ゲーム状態の同期: 列挙型をカスタムプロパティとして使う
+
+ゲームの進行状態をすべてのプレイヤーで同期するのはマルチプレイゲームでは重要である. カスタムプロパティを使えば簡単に実現できる.
+
+```csharp
+// ゲームの状態を表す列挙型
+public enum GameState
+{
+    START,  // ゲーム開始前
+    PLAY,   // プレイ中
+    END     // ゲーム終了
+}
+
+// ローカルでの状態管理変数
+[Header("ゲームの状態管理用変数")]
+private GameState state = GameState.START;
+
+// 現在のゲーム状態を取得するメソッド
+public GameState GetGameState()
+{
+    // ルームにいる場合は、ルームのカスタムプロパティから取得
+    if (PhotonNetwork.InRoom
+        && PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("gameState", out object gs))
+    {
+        // objをGameState型にキャスト
+        return (GameState)(int)gs;
+    }
+
+    // ルームにいない、またはプロパティがなければローカル変数を返す
+    return state;
+}
+
+// ゲーム状態を設定し、全プレイヤーに共有するメソッド
+public void SetGameState(GameState newState)
+{
+    // まずローカル変数を更新
+    state = newState;
+
+    // ルームにいる場合は、カスタムプロパティとして設定して全プレイヤーに共有
+    if (PhotonNetwork.InRoom)
+    {
+        // Hashtableオブジェクトを作成し、キー"gameState"に値を設定
+        var props = new ExitGames.Client.Photon.Hashtable { ["gameState"] = (int)state };
+
+        // ルームのカスタムプロパティとして設定（これで自動的に同期される）
+        PhotonNetwork.CurrentRoom.SetCustomProperties(props);
+    }
+}
+```
+
+### 文字列配列の同期: プレイヤー名のリスト管理
+
+プレイヤー名のような文字列の配列も同期できる. 以下はプレイヤー名リストを管理する例である.
+
+```csharp
+// ローカルで管理するプレイヤー名の配列
+private string[] localPlayerNames = new string[0];
+
+// 新しいプレイヤー名を追加するメソッド
+public void AddLocalPlayerName(string name)
+{
+    // 現在の配列から一時的なリストを作成
+    var list = new List<string>(localPlayerNames);
+    // 新しい名前を追加
+    list.Add(name);
+    // リストを配列に戻す
+    localPlayerNames = list.ToArray();
+    // カスタムプロパティとして更新して同期
+    UpdatePlayerNameListProperty();
+}
+
+// プレイヤー名リストをカスタムプロパティとして設定
+void UpdatePlayerNameListProperty()
+{
+    // ルームにいる場合のみ実行
+    if (PhotonNetwork.InRoom)
+    {
+        // プレイヤー名リストをカスタムプロパティとして設定
+        PhotonNetwork.CurrentRoom.SetCustomProperties(
+            new ExitGames.Client.Photon.Hashtable { ["playerNameList"] = localPlayerNames }
+        );
+    }
+}
+
+// すべてのプレイヤー名を取得するメソッド
+public string[] GetAllPlayerNames()
+{
+    // ルームのカスタムプロパティからプレイヤー名リストを取得
+    if (PhotonNetwork.InRoom
+        && PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("playerNameList", out object obj))
+    {
+        // 型に応じた処理
+        if (obj is string[] names)
+        {
+            // すでに文字列配列の場合
+            return names;
+        }
+        else if (obj is object[] objArray)
+        {
+            // object[]の場合は文字列に変換
+            string[] namesFromRoom = new string[objArray.Length];
+            for (int i = 0; i < objArray.Length; i++)
+            {
+                namesFromRoom[i] = objArray[i].ToString();
+            }
+            return namesFromRoom;
+        }
+    }
+    // 取得できなければローカルの配列を返す
+    return localPlayerNames;
+}
+```
+
+### ブール配列の同期: プレイヤーの状態管理
+
+プレイヤーの生存状態のようなブール値の配列も同期できる.
+
+```csharp
+// プレイヤーの死亡状態を管理するブール配列
+private bool[] playerDeadStatus;
+
+// プレイヤー死亡状態配列を初期化するメソッド
+private void InitializePlayerDeadStatusArray()
+{
+    // プレイヤー名のリストからプレイヤー数を取得
+    var names = GetAllPlayerNames();
+    // プレイヤー数分の配列を作成
+    playerDeadStatus = new bool[names.Length];
+    // すべて「生存中(false)」で初期化
+    for (int i = 0; i < playerDeadStatus.Length; i++)
+        playerDeadStatus[i] = false;
+    // カスタムプロパティとして設定して同期
+    UpdatePlayerDeadStatusProperty();
+}
+
+// 指定プレイヤーを死亡状態に設定するメソッド
+public void SetPlayerDeadStatusTrue(int index)
+{
+    // 配列が初期化済みで、インデックスが有効な範囲か確認
+    if (playerDeadStatus != null
+        && index >= 0
+        && index < playerDeadStatus.Length)
+    {
+        // 死亡状態に設定
+        playerDeadStatus[index] = true;
+        // カスタムプロパティとして更新して同期
+        UpdatePlayerDeadStatusProperty();
+    }
+    else
+    {
+        Debug.LogError($"Invalid index or not initialized: {index}");
+    }
+}
+
+// 死亡状態配列をカスタムプロパティとして更新
+private void UpdatePlayerDeadStatusProperty()
+{
+    if (PhotonNetwork.InRoom)
+    {
+        PhotonNetwork.CurrentRoom.SetCustomProperties(
+            new ExitGames.Client.Photon.Hashtable { ["playerDeadStatus"] = playerDeadStatus }
+        );
+    }
+}
+```
+
+### 定期的な同期の実装
+
+重要なデータは定期的に同期すると安全である. 以下はコルーチンを使った定期同期の例である.
+
+```csharp
+// ローカルデータを定期的にルームに同期するコルーチン
+private IEnumerator SyncCustomPropertiesCoroutine()
+{
+    while (true) // 無限ループ
+    {
+        // 各種データをルームのカスタムプロパティとして更新
+        UpdatePlayerNameListProperty();
+        UpdatePlayerDeadStatusProperty();
+        UpdatePlayerScoreListProperty();
+
+        // 1秒待機
+        yield return new WaitForSeconds(1f);
+    }
+}
+
+private void Start()
+{
+    // ゲーム開始時にコルーチンを起動
+    StartCoroutine(SyncCustomPropertiesCoroutine());
+}
+```
+
+### プロパティ更新通知のハンドリング
+
+カスタムプロパティが変更されると、自動的に通知を受け取ることができる. `MonoBehaviourPunCallbacks`を継承したクラスでは、`OnRoomPropertiesUpdate`メソッドをオーバーライドして処理を実装する。
+
+```csharp
+// ルームのカスタムプロパティが更新されたときに呼ばれるコールバック
+public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable props)
+{
+    // 更新された各プロパティに対する処理
+
+    // 生存プレイヤー数が更新された場合
+    if (props.ContainsKey("aliveCount"))
+    {
+        aliveCount = (int)props["aliveCount"];
+        Debug.Log("生存プレイヤー数が更新された: " + aliveCount);
+    }
+
+    // ゲーム状態が更新された場合
+    if (props.ContainsKey("gameState"))
+    {
+        state = (GameState)(int)props["gameState"];
+        Debug.Log("ゲーム状態が更新された: " + state);
+    }
+
+    // プレイヤー死亡状態が更新された場合
+    if (props.ContainsKey("playerDeadStatus"))
+    {
+        playerDeadStatus = props["playerDeadStatus"] as bool[];
+        Debug.Log("プレイヤー死亡状態が更新された: " +
+                  string.Join(", ", playerDeadStatus ?? new bool[0]));
+    }
+
+    // プレイヤー名リストが更新された場合
+    if (props.ContainsKey("playerNameList"))
+    {
+        object propValue = props["playerNameList"];
+        // 型に応じた処理
+        if (propValue is string[] names)
+        {
+            localPlayerNames = names;
+        }
+        else if (propValue is object[] objArray)
+        {
+            // object[]から文字列配列に変換
+            localPlayerNames = new string[objArray.Length];
+            for (int i = 0; i < objArray.Length; i++)
+            {
+                localPlayerNames[i] = objArray[i].ToString();
+            }
+        }
+        Debug.Log("プレイヤー名リストが更新された: " + string.Join(", ", localPlayerNames));
+    }
+
+    // スコアリストが更新された場合
+    if (props.ContainsKey("playerScoreList"))
+    {
+        localPlayerScores = props["playerScoreList"] as float[];
+        Debug.Log("スコアリストが更新された: " +
+                  string.Join(", ", localPlayerScores ?? new float[0]));
+    }
+}
+```
+
+### 数値データの管理: スコアシステムの実装例
+
+プレイヤーのスコアを管理する例である. 配列のサイズを動的に変更する方法も含まれている.
+
+```csharp
+// ローカルで管理するスコア配列
+private float[] localPlayerScores = new float[0];
+
+// プレイヤーのスコアを設定するメソッド
+public void SetLocalPlayerScore(int index, float score)
+{
+    // index = -1 の場合は末尾に追加
+    if (index == -1)
+    {
+        index = localPlayerScores.Length;
+    }
+
+    // 配列サイズが足りない場合は拡張
+    if (index >= localPlayerScores.Length)
+    {
+        // 配列のサイズを変更
+        Array.Resize(ref localPlayerScores, index + 1);
+    }
+
+    // スコアを設定
+    localPlayerScores[index] = score;
+    // カスタムプロパティとして更新して同期
+    UpdatePlayerScoreListProperty();
+}
+
+// スコア配列をカスタムプロパティとして更新
+private void UpdatePlayerScoreListProperty()
+{
+    if (PhotonNetwork.InRoom)
+    {
+        PhotonNetwork.CurrentRoom.SetCustomProperties(
+            new ExitGames.Client.Photon.Hashtable { ["playerScoreList"] = localPlayerScores }
+        );
+    }
+}
+```
+
+## カスタムプロパティを活用したゲームロジック
+
+カスタムプロパティの変更を監視することで、さまざまなゲームロジックを実装できる。以下はゲーム状態に応じた処理の例である。
+
+```csharp
+private void Update()
+{
+    // 【ゲーム開始処理】
+    // GODプレイヤーがスペースキーを押すとゲームスタート
+    if (GetGameState() == GameState.START   // 現在は開始前状態
+        && Input.GetKey(KeyCode.Space)  // スペースキーが押された
+        && !hasPlayerNameCreated)  // 初期化済みでない
+    {
+        // ゲーム状態をPLAYに変更（全プレイヤーに通知される）
+        SetGameState(GameState.PLAY);
+    }
+
+    // 【ゲーム中の初期化処理】
+    // 全プレイヤーで実行される
+    if (GetGameState() == GameState.PLAY  // プレイ状態になった
+        && !hasPlayerNameCreated)  // まだ初期化していない
+    {
+        // 生存プレイヤー数を設定
+        SetAliveCount(GetAllPlayerNames().Length);
+        // UIのセットアップ
+        SetupUI();
+        // プレイヤー死亡状態の初期化
+        InitializePlayerDeadStatusArray();
+        // 初期化済みフラグを立てる
+        hasPlayerNameCreated = true;
+    }
+
+    // 【ゲーム終了時の処理】
+    if (GetGameState() == GameState.END)
+    {
+      // 結果画面に遷移
+      LoadResultScene();
+    }
+}
+```
+
+## ルームへの接続時のデータ取得
+
+プレイヤーがルームに参加したとき、既にルームにあるカスタムプロパティを取得することも重要である。
+
+```csharp
+private void Start()
+{
+    // ゲーム開始時の初期化
+
+    // Room に入室済みなら既存のプレイヤー名リストを取得
+    FetchPlayerNameListFromRoom();
+
+    // Room に入室済みなら既存のスコアリストを取得
+    FetchPlayerScoreListFromRoom();
+}
+
+// ルームからプレイヤー名リストを取得するメソッド
+private void FetchPlayerNameListFromRoom()
+{
+    // ルームに入室済みで、playerNameListプロパティが存在する場合
+    if (PhotonNetwork.InRoom
+        && PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("playerNameList", out object obj))
+    {
+        // 型に応じた処理
+        if (obj is string[] names)
+        {
+            // string[]型の場合
+            localPlayerNames = names;
+        }
+        else if (obj is object[] objArray)
+        {
+            // object[]型の場合は変換
+            localPlayerNames = new string[objArray.Length];
+            for (int i = 0; i < objArray.Length; i++)
+            {
+                localPlayerNames[i] = objArray[i].ToString();
+            }
+        }
+        Debug.Log("ルームからプレイヤー名リストを取得した: " + string.Join(", ", localPlayerNames));
+    }
+}
+```
+
+## Photonでよくある型変換の問題と解決法
+
+Photonのカスタムプロパティでは、データの送受信時に型が変わることがある。特に配列は`object[]`として受け取られることが多いため、適切な型変換が必要である。
+
+```csharp
+// カスタムプロパティから取得したデータの型変換例
+if (obj is string[] names)
+{
+    // すでに正しい型の場合はそのまま使用
+    localPlayerNames = names;
+}
+else if (obj is object[] objArray)
+{
+    // object[]の場合は手動で変換
+    localPlayerNames = new string[objArray.Length];
+    for (int i = 0; i < objArray.Length; i++)
+    {
+        localPlayerNames[i] = objArray[i].ToString();
+    }
+}
+```
+
+## カスタムプロパティの実用例
+
+実際のゲーム開発では、以下のようなシーンでカスタムプロパティが役立つ：
+
+### 1. ゲーム状態管理
+
+全プレイヤーでゲームの進行状況を同期する。
+
+```csharp
+// ゲーム状態を変更し、全プレイヤーに通知
+SetGameState(GameState.PLAY);  // これでゲーム開始を全員に通知
+
+// ゲーム状態を取得して条件分岐
+if (GetGameState() == GameState.END) {
+    // ゲーム終了時の処理
+}
+```
+
+### 2. プレイヤー情報管理
+
+各プレイヤーの情報を共有する。
+
+```csharp
+// プレイヤーのスコアを更新して全員に通知
+SetLocalPlayerScore(playerIndex, newScore);
+
+// プレイヤーの死亡をマークして全員に通知
+SetPlayerDeadStatusTrue(playerIndex);
+```
+
+### 3. ゲームロジック実装
+
+ゲームのルールに関わる処理を実装できる。
+
+```csharp
+// プレイヤーを倒した時の処理
+public void SetDecrementAliveCount()
+{
+    // 生存者数を減らす
+    aliveCount--;
+    // 更新を全プレイヤーに通知
+    UpdateAliveCountProperty();
+
+    // 全員倒されたらゲーム終了
+    if (aliveCount <= 0)
+    {
+        SetGameState(GameState.END);  // ゲーム終了を全員に通知
+    }
+}
+```
+
+### 4. UIの同期更新
+
+UI要素をゲームの状態に合わせて更新できる。
+
+```csharp
+// プレイヤーの死亡状態に応じてUIを更新
+private void SetupDeadUI()
+{
+    // 死亡状態配列を取得
+    var deadStatus = GetPlayerDeadStatus();
+
+    // 各プレイヤーの状態に応じて処理
+    for (int i = 0; i < deadStatus.Length; i++)
+    {
+        if (deadStatus[i])  // 死亡している場合
+        {
+            // 対応するUIを死亡表示に
+            switch (i)
+            {
+                case 0: mrAttach.SetFirstPlayerDead(); break;
+                case 1: mrAttach.SetSecondPlayerDead(); break;
+                case 2: mrAttach.SetThirdPlayerDead(); break;
+            }
+        }
+    }
+}
+```
+
+Photonのカスタムプロパティは、マルチプレイヤーゲーム開発において非常に便利なツールである。主な利点は：
+
+1. **簡単なデータ共有**: サーバーサイドコードを書かずに済む
+2. **自動同期**: 手動で送受信を管理する必要がない
+3. **柔軟なデータ型**: 数値からオブジェクト配列まで様々なデータを扱える
+4. **拡張性**: 必要に応じて複雑なシステムも構築できる
+
+効果的な使い方は：
+
+- **ゲーム状態**はルームのカスタムプロパティとして管理
+- **プレイヤー固有の情報**はプレイヤーのカスタムプロパティで管理
+- **オブジェクト情報**は必要に応じてPhotonViewのカスタムプロパティを使用
+- **更新通知**を適切に処理してUIやゲームロジックを更新
+
+これらの概念を理解して実装することで，スムーズなマルチプレイヤーゲーム体験を実現できる．

@@ -12,48 +12,25 @@ permissions:
   contents: write
 
 jobs:
-  setup-matrix:
-    runs-on: ubuntu-latest
-    # ここで下の steps.set_matrix.outputs.result を matrix として公開
-    outputs:
-      matrix: ${{ steps.set_matrix.outputs.result }}
-    steps:
-      - name: Set matrix for current event
-        id: set_matrix
-        uses: actions/github-script@v6
-        with:
-          script: |
-            let matrix;
-            if (context.eventName === 'pull_request') {
-              // PR のときは head ブランチだけ
-              matrix = { include: [ { branch: github.head_ref } ] };
-            } else {
-              // schedule のときは main ベースのオープンPRを全部
-              const { data: prs } = await github.rest.pulls.list({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                state: "open",
-              });
-              const filtered = prs.filter(pr => pr.base.ref === "main");
-              matrix = {
-                include: filtered.map(pr => ({ branch: pr.head.ref }))
-              };
-            }
-            // 戻り値をそのまま JSON 化して outputs.result に載せてくれる
-            return matrix;
-
   update-frontmatter:
-    needs: setup-matrix
     runs-on: ubuntu-latest
-    strategy:
-      # ここで文字列化されたJSONをパース
-      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
     steps:
-      - name: Checkout repository (branch: ${{ matrix.branch }})
+      - name: Set branch based on event
+        id: set_branch
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "BRANCH=${{ github.head_ref }}" >> $GITHUB_ENV
+            echo "Using PR head branch: ${{ github.head_ref }}"
+          else
+            echo "BRANCH=main" >> $GITHUB_ENV
+            echo "Using main branch for scheduled event"
+          fi
+
+      - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: ${{ matrix.branch }}
+          ref: ${{ env.BRANCH }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -75,7 +52,7 @@ jobs:
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git commit -m "${COMMIT_MSG}"
-            git push origin HEAD:${{ matrix.branch }}
+            git push origin HEAD:${{ env.BRANCH }}
           else
             echo "No changes to commit"
           fi
@@ -83,14 +60,23 @@ jobs:
   qiita-sync:
     needs: update-frontmatter
     runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
     steps:
-      - name: Checkout repository (branch: ${{ matrix.branch }})
+      - name: Set branch based on event
+        id: set_branch
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "BRANCH=${{ github.head_ref }}" >> $GITHUB_ENV
+            echo "Using PR head branch: ${{ github.head_ref }}"
+          else
+            echo "BRANCH=main" >> $GITHUB_ENV
+            echo "Using main branch for scheduled event"
+          fi
+
+      - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: ${{ matrix.branch }}
+          ref: ${{ env.BRANCH }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -114,7 +100,7 @@ jobs:
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git commit -m "${COMMIT_MSG}"
-            git push origin HEAD:${{ matrix.branch }}
+            git push origin HEAD:${{ env.BRANCH }}
           else
             echo "No changes to commit"
           fi
