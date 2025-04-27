@@ -1,12 +1,12 @@
 ---
-title: Unityでゲーム作成する際に複数プレイヤーで値や状態の共有を行おう[Photonカスタムプロパティについて]
+title: 'Unityでゲーム作成する際に複数プレイヤーで値や状態の共有を行おう[Photonカスタムプロパティについて]'
 tags:
   - Unity
   - Photon
   - PUN
   - Networking
   - MultiplayerGame
-private: false
+private: true
 updated_at: ''
 id: null
 organization_url_name: null
