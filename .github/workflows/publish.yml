@@ -47,9 +47,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       # ここで文字列化されたJSONをパース
-      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
+      matrix:
+        include: ${{ fromJson(needs.setup-matrix.outputs.matrix).include }}
     steps:
-      - name: Checkout repository (branch: ${{ matrix.branch }})
+      - name: 'Checkout repository (branch: ${{ matrix.branch }})'
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -84,9 +85,10 @@ jobs:
     needs: update-frontmatter
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
+      matrix:
+        include: ${{ fromJson(needs.setup-matrix.outputs.matrix).include }}
     steps:
-      - name: Checkout repository (branch: ${{ matrix.branch }})
+      - name: 'Checkout repository (branch: ${{ matrix.branch }})'
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
