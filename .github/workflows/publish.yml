@@ -36,17 +36,30 @@ jobs:
               });
               const filtered = prs.filter(pr => pr.base.ref === "main");
               if (filtered.length === 0) {
-                // 対象PRがなければ、デフォルトブランチを使用
-                matrix = { include: [ { branch: github.head_ref } ] };
+                // 対象PRがなければ、mainブランチを使用
+                matrix = { include: [ { branch: 'main' } ] };
               } else {
                 matrix = {
                   include: filtered.map(pr => ({ branch: pr.head.ref }))
                 };
               }
             }
+
+            // デバッグのためにマトリックスの内容を検証
+            console.log('Event type:', context.eventName);
+            if (context.eventName === 'pull_request') {
+              console.log('PR head_ref:', github.head_ref);
+            }
+            console.log('Matrix data:', JSON.stringify(matrix));
+
+            // 確実に有効なbranchプロパティを持つmatrixを返す
+            if (!matrix.include[0].branch) {
+              console.log('Warning: Branch property is missing, using main as fallback');
+              matrix = { include: [ { branch: 'main' } ] };
+            }
+
             // 明示的に結果を設定
             core.setOutput('result', JSON.stringify(matrix));
-            console.log('Matrix data:', JSON.stringify(matrix));
             return matrix;
 
   update-frontmatter:
