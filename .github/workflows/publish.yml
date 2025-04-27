@@ -27,38 +27,15 @@ jobs:
             if (context.eventName === 'pull_request') {
               // PR のときは head ブランチだけ
               matrix = { include: [ { branch: github.head_ref } ] };
+              console.log('PR event detected, using head_ref:', github.head_ref);
             } else {
-              // schedule のときは main ベースのオープンPRを全部
-              const { data: prs } = await github.rest.pulls.list({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                state: "open",
-              });
-              const filtered = prs.filter(pr => pr.base.ref === "main");
-              if (filtered.length === 0) {
-                // 対象PRがなければ、mainブランチを使用
-                matrix = { include: [ { branch: 'main' } ] };
-              } else {
-                matrix = {
-                  include: filtered.map(pr => ({ branch: pr.head.ref }))
-                };
-              }
-            }
-
-            // デバッグのためにマトリックスの内容を検証
-            console.log('Event type:', context.eventName);
-            if (context.eventName === 'pull_request') {
-              console.log('PR head_ref:', github.head_ref);
-            }
-            console.log('Matrix data:', JSON.stringify(matrix));
-
-            // 確実に有効なbranchプロパティを持つmatrixを返す
-            if (!matrix.include[0].branch) {
-              console.log('Warning: Branch property is missing, using main as fallback');
+              // schedule のときは単純にmainブランチを使用
               matrix = { include: [ { branch: 'main' } ] };
+              console.log('Schedule event detected, using main branch');
             }
 
             // 明示的に結果を設定
+            console.log('Final matrix data:', JSON.stringify(matrix));
             core.setOutput('result', JSON.stringify(matrix));
             return matrix;
 
