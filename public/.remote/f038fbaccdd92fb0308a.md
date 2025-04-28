@@ -5,7 +5,7 @@ tags:
   - Database
   - DBMS
 private: false
-updated_at: '2025-04-28T11:22:35+09:00'
+updated_at: '2025-04-28T11:38:41+09:00'
 id: f038fbaccdd92fb0308a
 organization_url_name: rits-rcc
 slide: false
