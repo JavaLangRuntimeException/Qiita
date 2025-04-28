@@ -7,7 +7,7 @@ tags:
   - Web
   - gopher
 private: false
-updated_at: '2025-04-28T11:13:02+09:00'
+updated_at: '2025-04-28T11:22:32+09:00'
 id: dc45b412d3fbd2ccb9e8
 organization_url_name: rits-rcc
 slide: false
