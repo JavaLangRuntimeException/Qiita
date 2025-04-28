@@ -4,7 +4,7 @@ tags:
   - Git
   - コマンドライン
   - バージョン管理
-private: false
+private: true
 updated_at: ''
 id: null
 organization_url_name: null
