@@ -15,23 +15,31 @@ if (!QIITA_TOKEN) {
  */
 async function syncFile(filePath) {
   try {
+    console.log(`ファイル処理開始: ${filePath}`);
+
+    // ファイルを読み込み、frontmatterとcontentを解析
     const fileContent = fs.readFileSync(filePath, 'utf8');
     const parsed = matter(fileContent);
     const data = parsed.data || {};
     const content = parsed.content || "";
+
+    // privateの値をログ出力して確認
+    console.log(`${filePath} のprivate値: ${data.private}`);
 
     // タグ情報を Qiita API のフォーマットに変換する
     const formattedTags = (data.tags || []).map(tag =>
       typeof tag === 'string' ? { name: tag, versions: [] } : tag
     );
 
-    // API リクエスト用ペイロード（ここでは frontmatter の private をそのまま利用）
+    // API リクエスト用ペイロード（frontmatter の private をそのまま利用）
     const payload = {
       body: content,
-      private: data.private,
+      private: data.private, // trueなら限定公開、falseなら公開
       tags: formattedTags,
       title: data.title || "Untitled"
     };
+
+    console.log(`${filePath} のAPI送信設定: private=${payload.private}`);
 
     let response;
     if (!data.id) {
@@ -58,6 +66,8 @@ async function syncFile(filePath) {
       });
       data.updated_at = response.data.updated_at;
     }
+
+    console.log(`Qiita APIレスポンス: ${response.status} - private=${response.data.private}`);
 
     // Qiitaから返却された情報でファイルを更新（必要に応じて）
     const newContent = matter.stringify(content, data);
@@ -97,6 +107,8 @@ async function processChangedFiles() {
     console.log("更新対象の Markdown ファイルはありません。");
     return;
   }
+
+  console.log(`処理対象ファイル: ${changedFiles.length}件`);
 
   for (const file of changedFiles) {
     // パスが相対パスの場合、スクリプトの実行ディレクトリを考慮して調整
