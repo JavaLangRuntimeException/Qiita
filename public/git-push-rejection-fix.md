@@ -1,5 +1,5 @@
 ---
-title: Git Pushが拒否された時の対処法：git reset, stash, pullを使った解決方法
+title: 他の人がpushしたブランチをpullせずにpushしてrejectされた時の対処法
 tags:
   - Git
   - GitHub
