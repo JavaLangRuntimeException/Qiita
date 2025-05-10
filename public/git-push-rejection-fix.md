@@ -6,8 +6,8 @@ tags:
   - GitLab
   - バージョン管理
 private: false
-updated_at: ''
-id: null
+updated_at: '2025-05-10T13:29:52+09:00'
+id: 402f6841421054a6dc9a
 organization_url_name: null
 slide: false
 ignorePublish: false
