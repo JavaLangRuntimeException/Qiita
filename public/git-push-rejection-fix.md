@@ -5,9 +5,9 @@ tags:
   - GitHub
   - GitLab
   - バージョン管理
-private: false
-updated_at: '2025-05-10T13:12:39+09:00'
-id: 0e0ac16110492c0d85e7
+private: true
+updated_at: ''
+id: null
 organization_url_name: null
 slide: false
 ignorePublish: false
