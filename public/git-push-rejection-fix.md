@@ -5,7 +5,7 @@ tags:
   - GitHub
   - GitLab
   - バージョン管理
-private: true
+private: false
 updated_at: ''
 id: null
 organization_url_name: null
