@@ -6,7 +6,7 @@ tags:
   - MetaQuest
   - SpatialAnchor
   - VR
-private: true
+private: false
 updated_at: '2025-04-28T11:13:32+09:00'
 id: d292c6bd9f9df26b4350
 organization_url_name: null
