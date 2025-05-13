@@ -60,7 +60,7 @@ VSCode Github Copilot拡張機能
 
 https://qiita.com/JavaLangRuntimeException/items/be13dc3a346cf6e5ee44
 
-Vim 
+Vim
 
 https://qiita.com/JavaLangRuntimeException/items/0c68ab96ea198e0a7294
 

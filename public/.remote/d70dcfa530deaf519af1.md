@@ -23,7 +23,7 @@ gitそのものの概念やgitコマンドのチートシートはこちらか�
 
 https://qiita.com/JavaLangRuntimeException/items/6b46551f56e0def76eba
 
-:::note info 
+:::note info
 **git stashとは**
 作業中の変更を一時的に保存し，後で再適用するためのGitコマンドである
 :::

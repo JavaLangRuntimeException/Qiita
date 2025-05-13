@@ -77,6 +77,12 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ env.BRANCH }}
+          # 最新のコミットを確実に取得
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull latest changes
+        run: |
+          git pull origin ${{ env.BRANCH }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
