@@ -7,7 +7,7 @@ tags:
   - Web
   - SpringBoot
 private: false
-updated_at: '2025-04-28T00:00:04+09:00'
+updated_at: '2025-05-05T13:52:44+09:00'
 id: fcb3dc2e2c49bf1ee293
 organization_url_name: rits-rcc
 slide: false
