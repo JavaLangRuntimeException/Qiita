@@ -5,7 +5,7 @@ tags:
   - Database
   - DBMS
 private: false
-updated_at: '2025-04-28T11:38:41+09:00'
+updated_at: '2025-05-05T13:52:40+09:00'
 id: f038fbaccdd92fb0308a
 organization_url_name: rits-rcc
 slide: false
@@ -55,7 +55,7 @@ TypeScript
 
 https://qiita.com/JavaLangRuntimeException/items/5894391c08e0d8e28389
 
-Vim 
+Vim
 
 https://qiita.com/JavaLangRuntimeException/items/0c68ab96ea198e0a7294
 
@@ -364,7 +364,7 @@ INSERT INTO 製品 (製品名, 価格, 在庫数) VALUES ('ノートPC', 80000, 
 
 ### 複数行挿入
 ```sql
-INSERT INTO 製品 (製品名, 価格, 在庫数) 
+INSERT INTO 製品 (製品名, 価格, 在庫数)
 VALUES ('スマートフォン', 50000, 200),
        ('タブレット', 40000, 150);
 ```
@@ -390,8 +390,8 @@ UPDATE 社員 SET 給与 = 給与 * 1.1 WHERE 部署 = '営業部';
 
 ### 複数列更新
 ```sql
-UPDATE 製品 
-SET 価格 = 価格 * 0.9, 在庫数 = 在庫数 + 50 
+UPDATE 製品
+SET 価格 = 価格 * 0.9, 在庫数 = 在庫数 + 50
 WHERE カテゴリ = '電子機器';
 ```
 複数の列を同時に更新する方法
@@ -416,7 +416,7 @@ DELETE FROM 注文 WHERE 注文日 < '2023-01-01';
 
 ### 関連テーブルからの削除
 ```sql
-DELETE FROM 社員 
+DELETE FROM 社員
 WHERE 部署ID IN (SELECT 部署ID FROM 部署 WHERE 部署名 = '廃止部門');
 ```
 サブクエリを使用して，関連するテーブルの情報に基づいて削除を行う．
@@ -720,7 +720,7 @@ SELECT MIN(カラム名) AS 最小値 FROM テーブル名;
 ### 制御フロー関数(CASE)
 条件に基づいて異なる値を返す制御フロー関数。
 ```sql
-SELECT 
+SELECT
     名前,
     CASE
         WHEN 給与 < 300000 THEN '低給与'
@@ -749,8 +749,8 @@ SELECT CONVERT('2023-05-15', DATE) AS 日付変換;  -- 結果: 2023-05-15（日
 ### 各行に一意の連番を割り当て(ROW_NUMBER())
 結果セット内の各行に一意の連番を割り当てる関数
 ```sql
-SELECT 
-    名前, 
+SELECT
+    名前,
     給与,
     ROW_NUMBER() OVER (ORDER BY 給与 DESC) AS 給与ランキング
 FROM 社員;
@@ -758,8 +758,8 @@ FROM 社員;
 ### ランク割当(RANK())
 結果セット内の各行にランクを割り当てる関数（同順位あり）。
 ```sql
-SELECT 
-    名前, 
+SELECT
+    名前,
     部署,
     給与,
     RANK() OVER (PARTITION BY 部署 ORDER BY 給与 DESC) AS 部署内給与ランク

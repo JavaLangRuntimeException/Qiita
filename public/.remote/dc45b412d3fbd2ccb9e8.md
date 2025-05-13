@@ -7,7 +7,7 @@ tags:
   - Web
   - gopher
 private: false
-updated_at: '2025-04-28T11:38:37+09:00'
+updated_at: '2025-05-05T13:52:36+09:00'
 id: dc45b412d3fbd2ccb9e8
 organization_url_name: rits-rcc
 slide: false
@@ -64,16 +64,16 @@ Webサーバーでは，クライアントの接続が切れたりタイムア�
 
 `context.Context`は，API間や処理の階層をまたいでキャンセル，タイムアウト，値の伝搬を行うために設計されており，特に以下のようなシーンで頻繁に利用される．
 
-- **リクエスト単位でのキャンセル管理:** 
+- **リクエスト単位でのキャンセル管理:**
 ユーザーからのリクエストに対する処理を管理し，キャンセルやタイムアウトを適切にハンドリング
 
-- **I/OやRPCのタイムアウト制御:** 
+- **I/OやRPCのタイムアウト制御:**
 ネットワーク通信やファイル操作のタイムアウトを設定し，応答がない場合に処理を中断
 
-- **ログ出力やトレースを目的とした識別子の受け渡し:** 
+- **ログ出力やトレースを目的とした識別子の受け渡し:**
 ユーザーIDやトレースIDなどのメタデータをコンテキスト経由で渡す
 
-- **ユーザーIDや認可情報など、複数レイヤーで用いるメタデータの保持:** 
+- **ユーザーIDや認可情報など、複数レイヤーで用いるメタデータの保持:**
 アプリケーション全体で共有する必要のある情報を安全に伝播
 
 :::note info
@@ -92,25 +92,25 @@ type Context interface {
 - **1.Deadline() (deadline time.Time, ok bool)**
    処理をキャンセルすべき締め切り時刻を返す．締め切りが設定されていない場合は`ok`が`false`になる．
 
-    **使用例:** 
+    **使用例:**
    処理に制限時間を設ける際に使用する．
 
 - **2.Done() <-chan struct{}**
    コンテキストがキャンセルまたはタイムアウトされたときに閉じられるチャネルを返す．これを監視することでゴルーチンはキャンセルを検知できる
-   
-    **使用例:** 
+
+    **使用例:**
     `select`文内で`ctx.Done()`を監視し、キャンセル時に処理を中断します。
 
 - **3.Err() error**
    `Done`チャネルが閉じられた理由をエラー値として返す．キャンセルされた場合は`context.Canceled`、デッドラインが超過した場合は`context.DeadlineExceeded`が返される．
-   
-   **使用例:** 
+
+   **使用例:**
    キャンセルやタイムアウトの理由を確認する際に使用します。
 
 - **4.Value(key any) any**
    指定したキーに対応する値を返す．該当する値がなければ`nil`を返す
-   
-   **使用例:** 
+
+   **使用例:**
    リクエストスコープのデータ（例：ユーザーID）を取得する際に使用します。
 
 これらのメソッドによって，処理の期限設定や中断，共通情報の伝搬が容易になる．実際には，`context.Background()`や`context.TODO()`を基点として，キャンセルやタイマー付きのコンテキストを生成し，階層的に引き回して利用する．
@@ -612,65 +612,65 @@ func handleRequest(ctx context.Context, wg *sync.WaitGroup) {
 
 以下にHTTPリクエストの処理においてcontext.Contextを活用する例を示す. この例では, リクエストごとに採番されるリクエストIDをコンテキストに格納し, アプリケーション内でログ出力などに用いる.
 ```go
-package main  
+package main
 
-import (  
-    "context"  
-    "fmt"  
-    "log"  
-    "math/rand"  
-    "net/http"  
-    "time"  
-)  
+import (
+    "context"
+    "fmt"
+    "log"
+    "math/rand"
+    "net/http"
+    "time"
+)
 
-// リクエストIDを格納するためのキー(独自型で定義)  
-type ctxKey string  
-const requestIDKey ctxKey = "requestID"  
+// リクエストIDを格納するためのキー(独自型で定義)
+type ctxKey string
+const requestIDKey ctxKey = "requestID"
 
-func main() {  
-    http.HandleFunc("/", handler)  
-    log.Println("サーバーを起動しました")  
-    http.ListenAndServe(":8080", nil)  
-}  
+func main() {
+    http.HandleFunc("/", handler)
+    log.Println("サーバーを起動しました")
+    http.ListenAndServe(":8080", nil)
+}
 
-func handler(w http.ResponseWriter, r *http.Request) {  
-    // リクエストIDを生成し, コンテキストに格納する  
-    reqID := generateRequestID()  
-    ctx := context.WithValue(r.Context(), requestIDKey, reqID)  
+func handler(w http.ResponseWriter, r *http.Request) {
+    // リクエストIDを生成し, コンテキストに格納する
+    reqID := generateRequestID()
+    ctx := context.WithValue(r.Context(), requestIDKey, reqID)
 
-    // 実行時間にタイムアウトを設ける場合はWithTimeoutやWithDeadlineを適宜併用  
-    // ctx, cancel := context.WithTimeout(ctx, 2*time.Second)  
-    // defer cancel()  
+    // 実行時間にタイムアウトを設ける場合はWithTimeoutやWithDeadlineを適宜併用
+    // ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+    // defer cancel()
 
-    result, err := processRequest(ctx)  
-    if err != nil {  
-        http.Error(w, err.Error(), http.StatusInternalServerError)  
-        return  
-    }  
-    fmt.Fprintf(w, "Result: %s", result)  
-}  
+    result, err := processRequest(ctx)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    fmt.Fprintf(w, "Result: %s", result)
+}
 
-func processRequest(ctx context.Context) (string, error) {  
-    // キーrequestIDKeyを用いてリクエストIDを取りだす  
-    if v := ctx.Value(requestIDKey); v != nil {  
-        if id, ok := v.(string); ok {  
-            fmt.Println("このリクエストIDは:", id)  
-        }  
-    }  
+func processRequest(ctx context.Context) (string, error) {
+    // キーrequestIDKeyを用いてリクエストIDを取りだす
+    if v := ctx.Value(requestIDKey); v != nil {
+        if id, ok := v.(string); ok {
+            fmt.Println("このリクエストIDは:", id)
+        }
+    }
 
-    // ゴルーチンなどを立ち上げるときにも同じctxを渡すことでキャンセルや値を共有  
-    // ここではダミーで2秒待機してデータを返す  
-    select {  
-    case <-time.After(2 * time.Second):  
-        return "Success", nil  
-    case <-ctx.Done():  
-        return "", ctx.Err()  
-    }  
-}  
+    // ゴルーチンなどを立ち上げるときにも同じctxを渡すことでキャンセルや値を共有
+    // ここではダミーで2秒待機してデータを返す
+    select {
+    case <-time.After(2 * time.Second):
+        return "Success", nil
+    case <-ctx.Done():
+        return "", ctx.Err()
+    }
+}
 
-func generateRequestID() string {  
-    return fmt.Sprintf("req-%d", rand.Intn(10000))  
-}  
+func generateRequestID() string {
+    return fmt.Sprintf("req-%d", rand.Intn(10000))
+}
 ```
 このように, handlerで受け取ったリクエストコンテキストに独自のキーと値を設定し, processRequestで取りだしている. これによって, リクエストIDを処理のどの段階でも共通のキーを介して取得可能となる.
 

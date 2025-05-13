@@ -6,7 +6,7 @@ tags:
   - コマンド
   - tree
 private: false
-updated_at: '2025-04-28T11:37:38+09:00'
+updated_at: '2025-05-05T13:51:39+09:00'
 id: 0fbe72cd6a38add7b83c
 organization_url_name: rits-rcc
 slide: false
@@ -92,7 +92,7 @@ tree -C
 
 
 
-## tree -a 
+## tree -a
 隠しファイル，隠しディレクトリも含めてツリー状に出力する．
 ```bash
 tree -a
